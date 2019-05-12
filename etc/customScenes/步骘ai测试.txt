@@ -1,0 +1,6 @@
+
+general:buzhi role:lord starter:true hp:3 equip:63 hand:59,121 
+general:sunshangxiang role:loyalist acquireSkills:liangzhu equip:53,62,64,68 
+general:select role:rebel 
+general:select role:rebel 
+general:select role:rebel 

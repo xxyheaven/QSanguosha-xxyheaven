@@ -1,0 +1,67 @@
+-- translation for Fire Package
+
+return {
+	["fire"] = "火包",
+
+	["#xunyu"] = "王佐之才",
+	["xunyu"] = "荀彧",
+	["illustrator:xunyu"] = "LiuHeng",
+	["quhu"] = "驱虎",
+	[":quhu"] = "出牌阶段限一次，你可以与一名体力值大于你的角色拼点。若你赢，该角色对其攻击范围内你选择的一名角色造成1点伤害；若你没赢，该角色对你造成1点伤害。",
+	["@quhu-damage"] = "请选择 %src 攻击范围内的一名角色",
+	["jieming"] = "节命",
+	[":jieming"] = "当你受到1点伤害后，你可以令一名角色将手牌摸至X张（X为其体力上限且最多为5）。",
+	["jieming-invoke"] = "你可以对一名角色发动“节命”",
+	["#QuhuNoWolf"] = "%from “<font color=\"yellow\"><b>驱虎</b></font>”拼点赢，由于 %to 攻击范围内没有角色，结算中止",
+
+	["#dianwei"] = "古之恶来",
+	["dianwei"] = "典韦",
+	["illustrator:dianwei"] = "小冷",
+	["qiangxi"] = "强袭",
+	[":qiangxi"] = "出牌阶段限一次，你可以失去1点体力或弃置一张武器牌，并选择你攻击范围内的一名其他角色，然后对其造成1点伤害。",
+
+	["#wolong"] = "卧龙",
+	["wolong"] = "卧龙诸葛亮",
+	["&wolong"] = "诸葛亮",
+	["illustrator:wolong"] = "北",
+	["bazhen"] = "八阵",
+	[":bazhen"] = "锁定技，若你的装备区里没有防具牌，你视为装备着【八卦阵】。",
+	["huoji"] = "火计",
+	[":huoji"] = "你可以将一张红色手牌当【火攻】使用。",
+	["kanpo"] = "看破",
+	[":kanpo"] = "你可以将一张黑色手牌当【无懈可击】使用。",
+
+	["#pangtong"] = "凤雏",
+	["pangtong"] = "庞统",
+	["lianhuan"] = "连环",
+	[":lianhuan"] = "你可以将一张梅花手牌当【铁索连环】使用或重铸。",
+	["niepan"] = "涅槃",
+	[":niepan"] = "限定技，当你处于濒死状态时，你可以弃置你的区域里的所有牌，然后将武将牌恢复至游戏开始时的状态，摸三张牌，将体力回复至3点。",
+	["$NiepanAnimate"] = "image=image/animate/niepan.png",
+
+	["#taishici"] = "笃烈之士",
+	["taishici"] = "太史慈",
+	["illustrator:taishici"] = "Tuu.",
+	["tianyi"] = "天义",
+	[":tianyi"] = "出牌阶段限一次，你可以与一名角色拼点。若你赢，直到回合结束，你使用【杀】的次数上限+1、使用【杀】无距离限制且使用【杀】的目标数上限+1；若你没赢，直到回合结束，你不能使用【杀】。",
+
+	["#yuanshao"] = "高贵的名门",
+	["yuanshao"] = "袁绍",
+	["illustrator:yuanshao"] = "SoniaTang",
+	["luanji"] = "乱击",
+	[":luanji"] = "你可以将两张花色相同的手牌当【万箭齐发】使用。",
+	["xueyi"] = "血裔",
+	[":xueyi"] = "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。",
+
+	["#yanliangwenchou"] = "虎狼兄弟",
+	["yanliangwenchou"] = "颜良＆文丑",
+	["&yanliangwenchou"] = "颜良文丑",
+	["shuangxiong"] = "双雄",
+	[":shuangxiong"] = "摸牌阶段开始时，你可以放弃摸牌。若如此做，你进行判定，当判定牌生效后，你获得之，然后直到回合结束，你可以将与判定结果颜色不同的一张手牌当【决斗】使用。",
+
+	["#pangde"] = "人马一体",
+	["pangde"] = "庞德",
+	["illustrator:pangde"] = "LiuHeng",
+	["jianchu"] = "鞬出",
+	[":jianchu"] = "当你使用【杀】指定一个目标后，你可以弃置其一张牌，若此牌：为装备牌，此【杀】不可被【闪】响应；不为装备牌，其获得此【杀】。",
+}

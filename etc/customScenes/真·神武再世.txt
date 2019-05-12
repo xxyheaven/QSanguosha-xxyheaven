@@ -1,0 +1,8 @@
+
+general:shenlvbu2 general2:shenlvbu3 role:lord starter:true maxhp:8 draw:8 
+general:fierce_zhuyin role:rebel 
+general:fierce_hundun role:rebel draw:8 
+general:fierce_qiongqi role:rebel draw:8 
+general:fierce_taowu role:rebel draw:8 
+general:fierce_taotie role:rebel draw:8 
+general:fierce_zhuyin role:rebel 

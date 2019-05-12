@@ -1,0 +1,3 @@
+
+general:xuyou role:lord starter:true draw:0 hand:190 
+general:shensimayi role:renegade hp:1 draw:0 equip:121 

@@ -1,0 +1,270 @@
+{
+"progressBar": [[0, "image/system/controls/progress-0.png"], [100, "image/system/controls/progress-100.png"]],
+"votesNum-default": "image/system/number/%1.png",
+"photoMainFrame": "image/fullskin/system/photo-back.png",
+"photoHandCardNum-default": "image/fullskin/system/handcard/%1.png",
+"photoHandCardNum-default2": "image/fullskin/system/handcard/qun.png",
+"photoFaceTurnedMask": "image/fullskin/generals/faceturned.png",
+"photoBlankGeneral": "image/fullskin/generals/photo-blank.png",
+"photoChain": "image/system/chain.png",
+"photoPhase0": "image/system/phase/round_start.png",
+"photoPhase1": "image/system/phase/start.png",
+"photoPhase2": "image/system/phase/judge.png",
+"photoPhase3": "image/system/phase/draw.png",
+"photoPhase4": "image/system/phase/play.png",
+"photoPhase5": "image/system/phase/discard.png",
+"photoPhase6": "image/system/phase/finish.png",
+"photoFocusFrame0": "image/system/frame/playing.png",
+"photoFocusFrame1": "image/system/frame/responding.png",
+"photoFocusFrame2": "image/system/frame/sos.png",
+"photoFrameWhenSelected": "image/system/frame/photoSelected.png",
+"dashboardLeftFrame": "image/fullskin/system/dashboard-equip.png",
+"dashboardRightFrame": "image/fullskin/system/dashboard-avatar.png",
+"dashboardMiddleFrame": "image/fullskin/system/dashboard-hand.png",
+"dashboardHandCardNum-default": "image/fullskin/system/handcard/%1.png",
+"dashboardHandCardNum-default2": "image/fullskin/system/handcard/qun.png",
+"dashboardFaceTurnedMask": "image/fullskin/generals/faceturned.png",
+"dashboardBlankGeneral": "image/fullskin/generals/dashboard-blank.png",
+"dashboardChain": ["image/system/chain.png", [0, 0, 134, 19]],
+"dashboardPhase0": "image/system/phase/round_start.png",
+"dashboardPhase1": "image/system/phase/start.png",
+"dashboardPhase2": "image/system/phase/judge.png",
+"dashboardPhase3": "image/system/phase/draw.png",
+"dashboardPhase4": "image/system/phase/play.png",
+"dashboardPhase5": "image/system/phase/discard.png",
+"dashboardPhase6": "image/system/phase/finish.png",
+"dashboardFrameWhenSelected": "image/system/frame/dashboardSelected.png",
+"magatamasBg0": "image/fullskin/system/magatamas/bg1.png",
+"magatamasBg1": "image/fullskin/system/magatamas/bg1.png",
+"magatamasBg2": "image/fullskin/system/magatamas/bg2.png",
+"magatamasBg3": "image/fullskin/system/magatamas/bg3.png",
+"magatamasBg4": "image/fullskin/system/magatamas/bg4.png",
+"magatamasBg5": "image/fullskin/system/magatamas/bg5.png",
+"magatamasBg6": "image/fullskin/system/magatamas/bg6.png",
+"tableBg": "image/system/backdrop/default.jpg",
+"tableBgwei": "image/system/backdrop/wei.jpg",
+"tableBgshu": "image/system/backdrop/shu.jpg",
+"tableBgwu" : "image/system/backdrop/wu.jpg",
+"tableBgqun": "image/system/backdrop/qun.jpg",
+"dashboardMagatamas0": "image/fullskin/system/magatamas/dashboard/0.png",
+"dashboardMagatamas1": "image/fullskin/system/magatamas/dashboard/1.png",
+"dashboardMagatamas2": "image/fullskin/system/magatamas/dashboard/2.png",
+"dashboardMagatamas3": "image/fullskin/system/magatamas/dashboard/3.png",
+"photoMagatamas0": "image/fullskin/system/magatamas/photo/0.png",
+"photoMagatamas1": "image/fullskin/system/magatamas/photo/1.png",
+"photoMagatamas2": "image/fullskin/system/magatamas/photo/2.png",
+"photoMagatamas3": "image/fullskin/system/magatamas/photo/3.png",
+"skillNameBg": "image/system/skillBg.png",
+"dashboardSkillBg": "image/system/skillBg.png",
+"dashboardMagatamasNumber-default-default": "image/fullskin/system/magatamas/dashboard/number/%1/%2.png",
+"photoMagatamasNumber-default-default": "image/fullskin/system/magatamas/photo/number/%1/%2.png",
+
+// general default directories
+"playerGeneralIcon-default-0-0": ["image/generals/avatar/%1.png", [71, 28, 134, 134], [40, 40]],
+"playerGeneralIcon-default-0-1": ["image/fullskin/generals/full/%1.png", [0, 0, 250, 292], [165, 191]],
+"playerGeneralIcon-default-0-2": ["image/generals/avatar/%1.png", [71, 28, 134, 134]],
+"playerGeneralIcon-default-0-4": ["image/fullskin/generals/full/%1.png", [70, 0, 124, 292], [77, 179]], //small avatar for photo
+"playerGeneralIcon-default-0-5": ["image/generals/avatar/%1.png", [71, 28, 134, 134], [70, 70]],  //small avatar for dashboard
+"playerGeneralIcon-default-0-6": ["image/fullskin/generals/full/%1.png", [65, 0, 250, 292], [155, 179]],  //primary avatar for photo
+"playerGeneralIcon-default-0-7": ["image/generals/avatar/%1.png", [71, 28, 134, 134]],  //primary avatar for dashboard
+"playerGeneralIcon-default-0-8": ["image/generals/avatar/%1.png", [16, 49, 244, 100], [122, 50]],  //avatar for KOF mode
+"playerGeneralIcon-default-0-9": "image/fullskin/generals/full/%1.png",
+
+"playerGeneralIcon-default-default-0": ["hero-skin/%1/%2/avatar.png", [71, 28, 134, 134], [40, 40]],
+"playerGeneralIcon-default-default-1": ["hero-skin/%1/%2/full.png", [0, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-default-default-2": ["hero-skin/%1/%2/full.png", [37, 3, 213, 255]],
+"playerGeneralIcon-default-default-4": ["hero-skin/%1/%2/full.png", [60, 0, 125, 292], [77, 179]], //small avatar for photo
+"playerGeneralIcon-default-default-5": ["hero-skin/%1/%2/avatar.png", [71, 28, 134, 134], [70, 70]],  //small avatar for dashboard
+"playerGeneralIcon-default-default-6": ["hero-skin/%1/%2/full.png", [65, 0, 250, 289], [155, 179]],  //primary avatar for photo
+"playerGeneralIcon-default-default-7": ["hero-skin/%1/%2/avatar.png", [71, 28, 134, 134]],  //primary avatar for dashboard
+"playerGeneralIcon-default-default-8": ["hero-skin/%1/%2/avatar.png", [16, 49, 244, 100], [122, 50]],  //avatar for KOF mode
+"playerGeneralIcon-default-default-9": "hero-skin/%1/%2/full.png",
+
+"generalCircleImage-0": "image/fullskin/generals/circle-photo.png",
+"generalCircleImage-1": "image/generals/double-general/circle-dashboard.png",
+
+"generalCircleMask-0": "deprecated",
+"generalCircleMask-1": ["image/generals/double-general/circle-dashboard-mask.png", [73, 0, 71, 71]],
+
+// generals defined later will override default path and also previously defined generals
+"playerGeneralIcon-anjiang-0-0": ["image/generals/big/anjiang.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-anjiang-0-2": "image/generals/big/anjiang.png",
+"playerGeneralIcon-anjiang-0-4": ["image/fullskin/generals/full/anjiang.png", [63, 0, 124, 289], [77, 179]],
+"playerGeneralIcon-anjiang-0-5": ["image/generals/big/anjiang.png", [0, 0, 134, 134], [70, 70]],
+"playerGeneralIcon-anjiang-0-6": ["image/fullskin/generals/full/anjiang.png", [63, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-anjiang-0-7": "image/generals/big/anjiang.png",
+"playerGeneralIcon-anjiang-0-8": "image/generals/kof/anjiang.png",
+
+"playerGeneralIcon-yanliangwenchou-0-0": ["image/generals/big/yanliangwenchou.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-yanliangwenchou-0-2": "image/generals/big/yanliangwenchou.png",
+"playerGeneralIcon-yanliangwenchou-0-4": ["image/fullskin/generals/fulldual/yanliangwenchou.png", [0, 0, 124, 289], [77, 179]],
+"playerGeneralIcon-yanliangwenchou-0-5": ["image/generals/big/yanliangwenchou.png", [0, 0, 134, 134], [70, 70]],
+"playerGeneralIcon-yanliangwenchou-0-6": ["image/fullskin/generals/fulldual/yanliangwenchou.png", [0, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-yanliangwenchou-0-7": "image/generals/big/yanliangwenchou.png",
+"playerGeneralIcon-yanliangwenchou-0-8": "image/generals/kof/yanliangwenchou.png",
+
+"playerGeneralIcon-erzhang-0-0": ["image/generals/big/erzhang.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-erzhang-0-2": "image/generals/big/erzhang.png",
+"playerGeneralIcon-erzhang-0-4": ["image/fullskin/generals/fulldual/erzhang.png", [0, 0, 124, 289], [77, 179]],
+"playerGeneralIcon-erzhang-0-5": ["image/generals/big/erzhang.png", [0, 0, 134, 134], [70, 70]],
+"playerGeneralIcon-erzhang-0-6": ["image/fullskin/generals/fulldual/erzhang.png", [0, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-erzhang-0-7": "image/generals/big/erzhang.png",
+"playerGeneralIcon-erzhang-0-8": "image/generals/kof/erzhang.png",
+
+"playerGeneralIcon-guanxingzhangbao-0-0": ["image/generals/big/guanxingzhangbao.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-guanxingzhangbao-0-2": "image/generals/big/guanxingzhangbao.png",
+"playerGeneralIcon-guanxingzhangbao-0-4": ["image/fullskin/generals/fulldual/guanxingzhangbao.png", [0, 0, 124, 289], [77, 179]],
+"playerGeneralIcon-guanxingzhangbao-0-5": ["image/generals/big/guanxingzhangbao.png", [0, 0, 134, 134], [70, 70]],
+"playerGeneralIcon-guanxingzhangbao-0-6": ["image/fullskin/generals/fulldual/guanxingzhangbao.png", [0, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-guanxingzhangbao-0-7": "image/generals/big/guanxingzhangbao.png",
+"playerGeneralIcon-guanxingzhangbao-0-8": "image/generals/kof/guanxingzhangbao.png",
+
+"playerGeneralIcon-panzhangmazhong-0-0": ["image/generals/big/panzhangmazhong.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-panzhangmazhong-0-2": "image/generals/big/panzhangmazhong.png",
+"playerGeneralIcon-panzhangmazhong-0-4": ["image/fullskin/generals/fulldual/panzhangmazhong.png", [0, 0, 124, 289], [77, 179]],
+"playerGeneralIcon-panzhangmazhong-0-5": ["image/generals/big/panzhangmazhong.png", [0, 0, 134, 134], [70, 70]],
+"playerGeneralIcon-panzhangmazhong-0-6": ["image/fullskin/generals/fulldual/panzhangmazhong.png", [0, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-panzhangmazhong-0-7": "image/generals/big/panzhangmazhong.png",
+"playerGeneralIcon-panzhangmazhong-0-8": "image/generals/kof/panzhangmazhong.png",
+
+"playerGeneralIcon-hanhaoshihuan-0-0": ["image/generals/big/hanhaoshihuan.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-hanhaoshihuan-0-2": "image/generals/big/hanhaoshihuan.png",
+"playerGeneralIcon-hanhaoshihuan-0-4": ["image/fullskin/generals/fulldual/hanhaoshihuan.png", [0, 0, 124, 289], [77, 179]],
+"playerGeneralIcon-hanhaoshihuan-0-5": ["image/generals/big/hanhaoshihuan.png", [0, 0, 134, 134], [70, 70]],
+"playerGeneralIcon-hanhaoshihuan-0-6": ["image/fullskin/generals/fulldual/hanhaoshihuan.png", [0, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-hanhaoshihuan-0-7": "image/generals/big/hanhaoshihuan.png",
+"playerGeneralIcon-hanhaoshihuan-0-8": "image/generals/kof/hanhaoshihuan.png",
+
+"playerGeneralIcon-guotupangji-0-0": ["image/generals/big/guotupangji.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-guotupangji-0-2": "image/generals/big/guotupangji.png",
+"playerGeneralIcon-guotupangji-0-4": ["image/fullskin/generals/fulldual/guotupangji.png", [0, 0, 124, 289], [77, 179]],
+"playerGeneralIcon-guotupangji-0-5": ["image/generals/big/guotupangji.png", [0, 0, 134, 134], [70, 70]],
+"playerGeneralIcon-guotupangji-0-6": ["image/fullskin/generals/fulldual/guotupangji.png", [0, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-guotupangji-0-7": "image/generals/big/guotupangji.png",
+"playerGeneralIcon-guotupangji-0-8": "image/generals/kof/guotupangji.png",
+
+"playerGeneralIcon-erqiao-0-0": ["image/generals/big/erqiao.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-erqiao-0-2": "image/generals/big/erqiao.png",
+"playerGeneralIcon-erqiao-0-4": ["image/fullskin/generals/fulldual/erqiao.png", [0, 0, 124, 289], [77, 179]],
+"playerGeneralIcon-erqiao-0-5": ["image/generals/big/erqiao.png", [0, 0, 134, 134], [70, 70]],
+"playerGeneralIcon-erqiao-0-6": ["image/fullskin/generals/fulldual/erqiao.png", [0, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-erqiao-0-7": "image/generals/big/erqiao.png",
+"playerGeneralIcon-erqiao-0-8": "image/generals/kof/erqiao.png",
+
+"playerGeneralIcon-huangjinleishi-0-0": ["image/generals/big/huangjinleishi.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-huangjinleishi-0-2": "image/generals/big/huangjinleishi.png",
+"playerGeneralIcon-huangjinleishi-0-4": ["image/fullskin/generals/fulldual/huangjinleishi.png", [0, 0, 124, 289], [77, 179]],
+"playerGeneralIcon-huangjinleishi-0-5": ["image/generals/big/huangjinleishi.png", [0, 0, 134, 134], [70, 70]],
+"playerGeneralIcon-huangjinleishi-0-6": ["image/fullskin/generals/fulldual/huangjinleishi.png", [0, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-huangjinleishi-0-7": "image/generals/big/huangjinleishi.png",
+"playerGeneralIcon-huangjinleishi-0-8": "image/generals/kof/huangjinleishi.png",
+
+"playerGeneralIcon-nos_guanxingzhangbao-0-0": ["image/generals/big/nos_guanxingzhangbao.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-nos_guanxingzhangbao-0-2": "image/generals/big/nos_guanxingzhangbao.png",
+"playerGeneralIcon-nos_guanxingzhangbao-0-4": ["image/fullskin/generals/fulldual/nos_guanxingzhangbao.png", [0, 0, 124, 289], [77, 179]],
+"playerGeneralIcon-nos_guanxingzhangbao-0-5": ["image/generals/big/nos_guanxingzhangbao.png", [0, 0, 134, 134], [70, 70]],
+"playerGeneralIcon-nos_guanxingzhangbao-0-6": ["image/fullskin/generals/fulldual/nos_guanxingzhangbao.png", [0, 0, 250, 289], [155, 179]],
+"playerGeneralIcon-nos_guanxingzhangbao-0-7": "image/generals/big/nos_guanxingzhangbao.png",
+"playerGeneralIcon-nos_guanxingzhangbao-0-8": "image/generals/kof/nos_guanxingzhangbao.png",
+
+"playerGeneralIcon-jg_machine_tuntianchiwen-0-0": ["image/generals/big/jg_machine_tuntianchiwen.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-jg_machine_tuntianchiwen-0-2": "image/generals/big/jg_machine_tuntianchiwen.png",
+"playerGeneralIcon-jg_machine_tuntianchiwen-0-5": ["image/generals/big/jg_machine_tuntianchiwen.png", [0, 0, 134, 134], [70, 70]],
+
+"playerGeneralIcon-jg_machine_shihuosuanni-0-0": ["image/generals/big/jg_machine_shihuosuanni.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-jg_machine_shihuosuanni-0-2": "image/generals/big/jg_machine_shihuosuanni.png",
+"playerGeneralIcon-jg_machine_shihuosuanni-0-5": ["image/generals/big/jg_machine_shihuosuanni.png", [0, 0, 134, 134], [70, 70]],
+
+"playerGeneralIcon-jg_machine_fudibian-0-0": ["image/generals/big/jg_machine_fudibian.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-jg_machine_fudibian-0-2": "image/generals/big/jg_machine_fudibian.png",
+"playerGeneralIcon-jg_machine_fudibian-0-5": ["image/generals/big/jg_machine_fudibian.png", [0, 0, 134, 134], [70, 70]],
+
+"playerGeneralIcon-jg_machine_lieshiyazi-0-0": ["image/generals/big/jg_machine_lieshiyazi.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-jg_machine_lieshiyazi-0-2": "image/generals/big/jg_machine_lieshiyazi.png",
+"playerGeneralIcon-jg_machine_lieshiyazi-0-5": ["image/generals/big/jg_machine_lieshiyazi.png", [0, 0, 134, 134], [70, 70]],
+
+"playerGeneralIcon-jg_machine_yunpingqinglong-0-0": ["image/generals/big/jg_machine_yunpingqinglong.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-jg_machine_yunpingqinglong-0-2": "image/generals/big/jg_machine_yunpingqinglong.png",
+"playerGeneralIcon-jg_machine_yunpingqinglong-0-5": ["image/generals/big/jg_machine_yunpingqinglong.png", [0, 0, 134, 134], [70, 70]],
+
+"playerGeneralIcon-jg_machine_jileibaihu-0-0": ["image/generals/big/jg_machine_jileibaihu.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-jg_machine_jileibaihu-0-2": "image/generals/big/jg_machine_jileibaihu.png",
+"playerGeneralIcon-jg_machine_jileibaihu-0-5": ["image/generals/big/jg_machine_jileibaihu.png", [0, 0, 134, 134], [70, 70]],
+
+"playerGeneralIcon-jg_machine_lingjiaxuanwu-0-0": ["image/generals/big/jg_machine_lingjiaxuanwu.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-jg_machine_lingjiaxuanwu-0-2": "image/generals/big/jg_machine_lingjiaxuanwu.png",
+"playerGeneralIcon-jg_machine_lingjiaxuanwu-0-5": ["image/generals/big/jg_machine_lingjiaxuanwu.png", [0, 0, 134, 134], [70, 70]],
+
+"playerGeneralIcon-jg_machine_chiyuzhuque-0-0": ["image/generals/big/jg_machine_chiyuzhuque.png", [0, 0, 134, 134], [40, 40]],
+"playerGeneralIcon-jg_machine_chiyuzhuque-0-2": "image/generals/big/jg_machine_chiyuzhuque.png",
+"playerGeneralIcon-jg_machine_chiyuzhuque-0-5": ["image/generals/big/jg_machine_chiyuzhuque.png", [0, 0, 134, 134], [70, 70]],
+
+// buttons
+"dashboardButtonSetBg": "image/system/button/platter/bg.png",
+"button-platter": "image/system/button/platter/%1/%2.png",
+"button-skill": "image/fullskin/system/button/skill/%1/%3-%2.png",
+"button-handcard": "image/system/button/handcard/%1/%2.png",
+"button-replay": "image/system/button/replay/%1/%2.png",
+"button-card_container": "image/system/button/card_container/%1/%2.png",
+"button-player_container": "image/system/button/player_container/%1/%2.png",
+"button-heroskin": "image/system/heroskin/%1/%2.png",
+"button-guhuo": "image/system/guhuo/%1/%2.png",
+"button-promptbox": "image/system/button/promptbox/%1/%2.png",
+
+// icons
+"saveMe": "image/system/death/save-me.png",
+"playerActioned": "image/system/3v3/actioned.png",
+"playerReady": "image/system/ready.png",
+"playerOwner": "image/system/owner.png",
+"photoSeatNum-default": "image/system/seat-num/photo/%1.png",
+"dashboardSeatNum-default": "image/system/seat-num/dashboard/%1.png",
+
+// card relevant
+"handCardBack": "image/system/card-back.png",
+"generalCardBack": "image/system/unknown.png",
+
+// equips
+"photoEquip-default": "image/fullskin/small-equips/%1.png",
+"photoHorse-chitu": "image/fullskin/small-equips/offensivehorse.png",
+"photoHorse-dayuan": "image/fullskin/small-equips/offensivehorse.png",
+"photoHorse-zixing": "image/fullskin/small-equips/offensivehorse.png",
+"photoHorse-dilu": "image/fullskin/small-equips/defensivehorse.png",
+"photoHorse-jueying": "image/fullskin/small-equips/defensivehorse.png",
+"photoHorse-hualiu": "image/fullskin/small-equips/defensivehorse.png",
+"photoHorse-zhuahuangfeidian": "image/fullskin/small-equips/defensivehorse.png",
+"photoHorse-DefensiveHorseSealed": "image/fullskin/small-equips/DefensiveHorseSealedSmall.png",
+"photoHorse-OffensiveHorseSealed": "image/fullskin/small-equips/OffensiveHorseSealedSmall.png",
+"dashboardEquip-default": "image/equips/%1.png",
+"dashboardHorse-default": "image/equips/narrow-equips/%1.png",
+
+// kingdoms
+"kingdomColorMask-default": "image/fullskin/kingdom/frame/%1.png",
+"dashboardKingdomColorMask-default": "image/fullskin/kingdom/frame/dashboard/%1.png",
+"kingdomIcon-default": "image/kingdom/icon/%1.png",
+
+// cards
+"handCardMainPhoto-default": "image/card/%1.png",
+"handCardMainPhoto-default2": "image/generals/card/%1.jpg",
+"handCardMainPhoto-unknown": "image/system/card-back.png",
+
+"handCardNumber-black-default": "image/system/black/%1.png",
+"handCardNumber-red-default": "image/system/red/%1.png",
+"handCardSuit-default": "image/system/cardsuit/%1.png",
+"judgeCardIcon-default": "image/icon/%1.png",
+
+"generalCard-default-0": "image/generals/card/%1.jpg",
+"generalCard-default-default": "hero-skin/%1/%2/card.jpg",
+
+//choose general box
+"chooseGeneralBoxSplitLine": "image/system/choose-general-box/split-line.png",
+"chooseGeneralBoxDestSeat": "image/system/choose-general-box/dest-seat.png",
+
+//general card item
+"generalCardItemCompanionFont-default": "image/system/companions/prompt/%1.png",
+"generalCardItemCompanionIcon": "image/system/cardchartlet/lord_selected.png",
+"generalCardItemArrows-default": "image/system/cardchartlet/%1.png",
+
+"cardItemSmallCards-default": "image/system/cardchartlet/small-cards/%1.png",
+"cardItemCheck": "image/system/cardchartlet/chosen.png"
+
+}
