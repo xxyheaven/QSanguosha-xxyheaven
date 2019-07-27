@@ -133,6 +133,8 @@ public:
     void addHistory(const QVariant &history);
     void moveFocus(const QVariant &focus);
     void setEmotion(const QVariant &set_str);
+    void setFullEmotion(const QVariant &set_str);
+    void playRoomAudio(const QVariant &set_str);
     void skillInvoked(const QVariant &invoke_str);
     void animate(const QVariant &animate_str);
     void cardLimitation(const QVariant &limit);
@@ -253,7 +255,7 @@ public:
     int choose_min_num;
 
     int m_bossLevel;
-    bool _m_race = false;
+    bool _m_race;
 
 public slots:
     void signup();
@@ -352,6 +354,8 @@ signals:
     void gongxin(const QList<int> &card_ids, bool enable_heart, QList<int> enabled_ids);
     void focus_moved(const QStringList &focus, QSanProtocol::Countdown countdown);
     void emotion_set(const QString &target, const QString &emotion);
+    void full_emotion_set(const QString &emotion, const int &dx, const int &dy);
+    void room_audio_play(const QString &path, bool superpose);
     void skill_invoked(const QString &who, const QString &skill_name);
     void skill_acquired(const ClientPlayer *player, const QString &skill_name);
     void animated(int name, const QStringList &args);

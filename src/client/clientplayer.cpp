@@ -234,9 +234,10 @@ void ClientPlayer::setMark(const QString &mark, int value, bool is_tip)
             else
                 emit equiparea_unsealed(area_name);
         }
-
-
     }
+
+    if (mark.endsWith("actionedM"))
+        emit action_taken();
 }
 
 void ClientPlayer::setHeadSkinId(int id)

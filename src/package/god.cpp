@@ -1089,15 +1089,26 @@ void JilveCard::onUse(Room *room, const CardUseStruct &card_use) const
 		room->addPlayerHistory(shensimayi, "ZhihengCard", 1);
 		room->setPlayerFlag(shensimayi, "JilveZhiheng");
 		LogMessage log;
-        log.from = card_use.from;
+        log.from = shensimayi;
         log.type = "#UseCard";
         log.card_str = QString("%1[%2:%3]=%4").arg("@ZhihengCard").arg(getSuitString()).arg(getNumberString()).arg(subcardString());
         room->sendLog(log);
         shensimayi->broadcastSkillInvoke("zhiheng");
+
+        bool all_handcards = true;
+        foreach (const Card *c, shensimayi->getHandcards()) {
+            if (!usecontains(c)) {
+                all_handcards = false;
+                break;
+            }
+        }
+
 		CardMoveReason reason(CardMoveReason::S_REASON_THROW, shensimayi->objectName(), QString(), "zhiheng", QString());
         room->moveCardTo(this, shensimayi, NULL, Player::DiscardPile, reason, true);
 		ZhihengCard *zhiheng_card = new ZhihengCard;
         zhiheng_card->addSubcards(subcards);
+        if (all_handcards)
+            zhiheng_card->setFlags("ZhihengAllHandcards");
         QList<ServerPlayer *> targets;
         zhiheng_card->use(room, shensimayi, targets);
         delete zhiheng_card;
@@ -1151,13 +1162,24 @@ public:
     {
         events << CardUsed // JiZhi
             << AskForRetrial // GuiCai
-            << Damaged; // FangZhu
+            << Damaged // FangZhu
+            << EventPhaseStart; //record
         view_as_skill = new JilveViewAsSkill;
+    }
+
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
+        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::NotActive) {
+            QList<ServerPlayer *> all_players = room->getAllPlayers();
+            foreach (ServerPlayer *p, all_players) {
+                room->setPlayerMark(p, "#jizhi", 0);
+            }
+        }
     }
 
     virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
     {
-        if (!TriggerSkill::triggerable(player) || player->getMark("@bear") == 0) return QStringList();
+        if (!TriggerSkill::triggerable(player) || player->getMark("@bear") == 0 || triggerEvent == EventPhaseStart) return QStringList();
         if (triggerEvent == CardUsed) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (!use.card->isNDTrick()) return QStringList();
@@ -1171,9 +1193,24 @@ public:
     {
         if (triggerEvent == CardUsed) {
             if (room->askForSkillInvoke(player, "jilve_jizhi", data)) {
-                player->broadcastSkillInvoke("nosjizhi");
+                player->broadcastSkillInvoke("jizhi");
                 player->loseMark("@bear");
-                player->drawCards(1, "nosjizhi");
+                bool from_up = true;
+                if (player->hasSkill("cunmu")) {
+                    room->sendCompulsoryTriggerLog(player, "cunmu");
+                    player->broadcastSkillInvoke("cunmu");
+                    from_up = false;
+                }
+                int id = room->drawCard(from_up);
+                const Card *card = Sanguosha->getCard(id);
+                CardMoveReason reason(CardMoveReason::S_REASON_DRAW, player->objectName(), objectName(), QString());
+                room->obtainCard(player, card, reason, false);
+                if (card->getTypeId() == Card::TypeBasic && player->handCards().contains(id)
+                        && room->askForChoice(player, objectName(),"yes+no", QVariant::fromValue(card), "@jizhi-discard:::"+card->objectName()) == "yes") {
+                    room->throwCard(card, player);
+                    room->addPlayerMark(player, "#jizhi");
+                    room->addPlayerMark(player, "Global_MaxcardsIncrease");
+                }
             }
         } else if (triggerEvent == AskForRetrial) {
             JudgeStruct *judge = data.value<JudgeStruct *>();
@@ -2222,7 +2259,7 @@ GodPackage::GodPackage()
     shensimayi->addRelateSkill("jilve");
     shensimayi->addRelateSkill("guicai");
     shensimayi->addRelateSkill("fangzhu");
-    shensimayi->addRelateSkill("nosjizhi");
+    shensimayi->addRelateSkill("jizhi");
     shensimayi->addRelateSkill("zhiheng");
     shensimayi->addRelateSkill("wansha");
     shensimayi->addSkill(new Lianpo);

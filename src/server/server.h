@@ -91,6 +91,9 @@ private:
     QGroupBox *create1v1Box();
     QGroupBox *create3v3Box();
     QGroupBox *createXModeBox();
+    QGroupBox *createBestLoyalistBox();
+    QGroupBox *createAttackDongBox();
+    QGroupBox *createYearBossBox();
 
     QLineEdit *server_name_edit;
     QSpinBox *timeout_spinbox;
@@ -133,6 +136,7 @@ private:
     QLineEdit *port_edit;
     QSpinBox *game_start_spinbox;
     QSpinBox *nullification_spinbox;
+    QSpinBox *general_level_spinbox;
     QCheckBox *minimize_dialog_checkbox;
     QCheckBox *ai_enable_checkbox;
     QCheckBox *ai_chat_checkbox;
@@ -150,6 +154,12 @@ private:
     QCheckBox *kof_card_extension_checkbox;
     QComboBox *role_choose_xmode_ComboBox;
     QCheckBox *disable_lua_checkbox;
+    QComboBox *official_zdyj_ComboBox;
+    QComboBox *mode_choose_zhfd_ComboBox;
+    QComboBox *mode_choose_year_ComboBox;
+    QCheckBox *year_using_year_skill_checkbox;
+    QCheckBox *year_using_uniform_kingdom_checkbox;
+    QSpinBox *year_yearmode_round_spinbox;
 
     QButtonGroup *extension_group;
     QButtonGroup *mode_group;

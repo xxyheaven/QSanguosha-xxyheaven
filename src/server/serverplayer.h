@@ -63,7 +63,7 @@ public:
     void pindianFinish(PindianStruct *pd);//pd is deleted at this function
     bool pindian(ServerPlayer *target, const QString &reason, const Card *card1 = NULL);
     PindianStruct *pindianStruct(ServerPlayer *target, const QString &reason, const Card *card1 = NULL);
-    void turnOver();
+    void turnOver(const QString &skill_name = QString());
     void play(QList<Player::Phase> set_phases = QList<Player::Phase>());
     bool changePhase(Player::Phase from, Player::Phase to);
 
@@ -128,6 +128,7 @@ public:
     void setCardsToPile(const QString &pile_name, QList<int> card_ids, bool open, QList<ServerPlayer *> open_players = QList<ServerPlayer *>());
     void exchangeFreelyFromPrivatePile(const QString &skill_name, const QString &pile_name, int upperlimit = 1000, bool include_equip = false);
     void gainAnExtraTurn();
+    void gainAnImmediateTurn(bool broken = true);
 
     void copyFrom(ServerPlayer *sp);
 
@@ -196,6 +197,8 @@ public:
 
     QList<ServerPlayer *> getUseExtraTargets(CardUseStruct card_use, bool distance_limited = false);
     QList<ServerPlayer *> getCardDefautTargets(const Card *card, bool distance_limited = false);
+
+    void changeLesbianSkill(const QString &skill, bool hidden = false);
 
     // static function
     static bool CompareByActionOrder(ServerPlayer *a, ServerPlayer *b);

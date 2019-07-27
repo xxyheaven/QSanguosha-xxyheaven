@@ -90,6 +90,8 @@ bool ServerInfoStruct::parse(const QString &_str)
                 }
             }
         }
+
+        GeneralLevel = str.at(6).toInt();
     }
 
     return true;

@@ -75,7 +75,7 @@ void GenericCardContainer::_disperseCards(QList<CardItem *> &cards, QRectF fillR
             else
                 newX = newX + step * i;
 
-		} else if (align == Qt::AlignRight)
+        } else if (align == Qt::AlignRight)
             newX = fillRegion.right() + step * (i - numCards) + card->boundingRect().width() / 2.0;
         else
             continue;
@@ -710,7 +710,7 @@ void PlayerCardContainer::refresh(bool)
     } else if (m_player) {
         if (_m_faceTurnedIcon) _m_faceTurnedIcon->setVisible(!m_player->faceUp());
         if (_m_chainIcon) _m_chainIcon->setVisible(m_player->isChained());
-        if (_m_actionIcon) _m_actionIcon->setVisible(m_player->hasFlag("actioned"));
+        if (_m_actionIcon) _m_actionIcon->setVisible(m_player->hasFlag("actioned") || m_player->getMark("actionedM"));
         if (_m_deathIcon && !(ServerInfo.GameMode == "04_1v3" && m_player->getGeneralName() != "shenlvbu2" && m_player->getGeneralName() != "shenlvbu3"))
             _m_deathIcon->setVisible(m_player->isDead());
     }
@@ -745,7 +745,7 @@ void PlayerCardContainer::repaintAll()
         _getAvatarParent());
     if (_m_seatItem != NULL)
         _paintPixmap(_m_seatItem, _m_layout->m_seatIconRegion,
-        _getPixmap(QSanRoomSkin::S_SKIN_KEY_SEAT_NUMBER, QString::number(m_player->property("UI_Seat").toInt())),
+        _getPixmap(QSanRoomSkin::S_SKIN_KEY_SEAT_NUMBER, QString::number(m_player->getRealSeat())),
         _getAvatarParent());
     if (_m_roleComboBox != NULL)
         _m_roleComboBox->setPos(_m_layout->m_roleComboBoxPos);
@@ -1416,7 +1416,7 @@ void PlayerCardContainer::showDistance()
 void PlayerCardContainer::showSeat()
 {
     _paintPixmap(_m_seatItem, _m_layout->m_seatIconRegion,
-        _getPixmap(QSanRoomSkin::S_SKIN_KEY_SEAT_NUMBER, QString::number(m_player->getSeat())),
+        _getPixmap(QSanRoomSkin::S_SKIN_KEY_SEAT_NUMBER, QString::number(m_player->getRealSeat())),
         _getAvatarParent());
     //save the seat number for later use
     m_player->setProperty("UI_Seat", m_player->getSeat());

@@ -30,6 +30,7 @@ public:
     QString ServerName;
     int CountDownSeconds;
     int NullificationCountDown;
+    int GeneralLevel;
     bool EnableMinimizeDialog;
     QString GameMode;
     QStringList BanPackages;
@@ -66,6 +67,9 @@ public:
     QMap<QString, QStringList> JianGeDefenseSoul;
 
     QMap<QString, QStringList> BestLoyalistSets;
+    QMap<QString, QStringList> DragonBoatBanC;
+    QMap<QString, QStringList> GodsReturnBanC;
+    QMap<QString, QStringList> YearBossBanC;
     QMap<QString, QStringList> CardsBan;
 
     // client side

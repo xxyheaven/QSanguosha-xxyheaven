@@ -91,16 +91,16 @@ void Slash::onUse(Room *room, const CardUseStruct &card_use) const
     }
 
     if (player->hasFlag("slashNoDistanceLimit")){
-		room->setPlayerFlag(player, "-slashNoDistanceLimit");
-		room->setCardFlag(this, "slashNoDistanceLimit");
-	}
-        
-    if (player->hasFlag("slashDisableExtraTarget")){
-		room->setPlayerFlag(player, "-slashDisableExtraTarget");
-		room->setCardFlag(this, "slashDisableExtraTarget");
-	}
+        room->setPlayerFlag(player, "-slashNoDistanceLimit");
+        room->setCardFlag(this, "slashNoDistanceLimit");
+    }
 
-	if (player->getPhase() == Player::Play && player->hasFlag("Global_MoreSlashInOneTurn")) {
+    if (player->hasFlag("slashDisableExtraTarget")){
+        room->setPlayerFlag(player, "-slashDisableExtraTarget");
+        room->setCardFlag(this, "slashDisableExtraTarget");
+    }
+
+    if (player->getPhase() == Player::Play && player->hasFlag("Global_MoreSlashInOneTurn")) {
         QString name;
         if (player->hasSkill("paoxiao"))
             name = "paoxiao";
@@ -156,7 +156,7 @@ void Slash::onUse(Room *room, const CardUseStruct &card_use) const
         room->sendCompulsoryTriggerLog(player, "crossbow", false);
         room->setEmotion(player, "weapon/crossbow");
     }
-	if (use.m_isOwnerUse)
+    if (use.m_isOwnerUse)
         room->setCardEmotion(player, this);
 
     int x = this->tag["addcardinality"].toInt();
@@ -169,6 +169,7 @@ void Slash::onUse(Room *room, const CardUseStruct &card_use) const
         x += use.from->getMark("#kannan");
         room->setPlayerMark(use.from, "#kannan", 0);
     }
+
     this->setTag("addcardinality", x);
 
     BasicCard::onUse(room, use);
@@ -772,8 +773,8 @@ void AmazingGrace::onEffect(const CardEffectStruct &effect) const
     foreach(QVariant card_id, ag_list)
         card_ids << card_id.toInt();
 
-	if (card_ids.isEmpty())
-		return;
+    if (card_ids.isEmpty())
+        return;
 
     int card_id = room->askForAG(effect.to, card_ids, false, objectName());
     card_ids.removeOne(card_id);
@@ -933,9 +934,9 @@ void Collateral::onEffect(const CardEffectStruct &effect) const
         QString prompt = QString("collateral-slash:%1:%2").arg(victim->objectName()).arg(source->objectName());
         if (!killer->isDead() && !(killer->canSlash(victim, NULL, false)
                 && room->askForUseSlashTo(killer, victim, prompt, true, false, false, QVariant::fromValue(effect)))) {
-			if (source->isAlive() && killer->getWeapon())
-				source->obtainCard(killer->getWeapon());
-		}
+            if (source->isAlive() && killer->getWeapon())
+                source->obtainCard(killer->getWeapon());
+        }
     }
 }
 
@@ -1171,7 +1172,7 @@ bool Indulgence::targetRated(const QList<const Player *> &targets, const Player 
 void Indulgence::takeEffect(ServerPlayer *target) const
 {
     target->clearHistory();
-	target->broadcastSkillInvoke("@indulgence");
+    target->broadcastSkillInvoke("@indulgence");
     target->skip(Player::Play);
 }
 
@@ -1205,7 +1206,7 @@ Lightning::Lightning(Suit suit, int number) :Disaster(suit, number)
 
 void Lightning::takeEffect(ServerPlayer *target) const
 {
-	target->broadcastSkillInvoke("@lightning");
+    target->broadcastSkillInvoke("@lightning");
     target->getRoom()->damage(DamageStruct(this, NULL, target, 3, DamageStruct::Thunder));
 }
 
@@ -1335,20 +1336,22 @@ void WoodenOxCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &
 {
     source->addToPile("wooden_ox", subcards, false);
 
-    QList<ServerPlayer *> targets;
-    foreach (ServerPlayer *p, room->getOtherPlayers(source)) {
-        if (!p->getTreasure())
-            targets << p;
-    }
-    if (targets.isEmpty())
-        return;
-    ServerPlayer *target = room->askForPlayerChosen(source, targets, "wooden_ox_move", "@wooden_ox-move", true);
-    if (target) {
-        const Card *treasure = source->getTreasure();
-        if (treasure)
+    const Card *treasure = source->getTreasure();
+    if (treasure) {
+        QList<ServerPlayer *> targets;
+        foreach (ServerPlayer *p, room->getOtherPlayers(source)) {
+            if (p->canSetEquip(treasure))
+                targets << p;
+        }
+        if (targets.isEmpty()) return;
+
+        ServerPlayer *target = room->askForPlayerChosen(source, targets, "wooden_ox_move", "@wooden_ox-move", true);
+        if (target) {
             room->moveCardTo(treasure, source, target, Player::PlaceEquip,
             CardMoveReason(CardMoveReason::S_REASON_TRANSFER, source->objectName(), "wooden_ox", QString()));
+        }
     }
+
 }
 
 class WoodenOxViewAsSkill : public OneCardViewAsSkill
@@ -1361,7 +1364,7 @@ public:
 
     virtual bool isEnabledAtPlay(const Player *player) const
     {
-        return !player->hasUsed("WoodenOxCard");
+        return !player->hasUsed("WoodenOxCard") && player->getPile("wooden_ox").length() < 5;
     }
 
     virtual const Card *viewAs(const Card *originalCard) const
@@ -1384,76 +1387,81 @@ public:
 
     virtual QStringList triggerable(TriggerEvent , Room *room, ServerPlayer *player, QVariant &data, ServerPlayer * &) const
     {
-        CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+        QVariantList move_datas = data.toList();
+        foreach(QVariant move_data, move_datas) {
+            CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
+            for (int i = 0; i < move.card_ids.size(); i++) {
+                const Card *card = Sanguosha->getEngineCard(move.card_ids[i]);
+                if (card->objectName() == "wooden_ox") {
+                    if (move.from_places[i] == Player::PlaceEquip) {
+                        ServerPlayer *from = (ServerPlayer *) move.from;
+                        if (from && from == player && !from->getPile("wooden_ox").isEmpty()) return QStringList("wooden_ox!");
 
-        for (int i = 0; i < move.card_ids.size(); i++) {
-            const Card *card = Sanguosha->getEngineCard(move.card_ids[i]);
-            if (card->objectName() == "wooden_ox") {
-                if (move.from_places[i] == Player::PlaceEquip) {
-                    ServerPlayer *from = (ServerPlayer *) move.from;
-                    if (from && from == player && !from->getPile("wooden_ox").isEmpty()) return QStringList("wooden_ox!");
-
-                } else if (move.from_places[i] == Player::PlaceTable) {
-                    QVariantList record = room->getTag("wooden_ox_temp").toList();
-                    foreach (QVariant card_data, record) {
-                        int card_id = card_data.toInt();
-                        if (room->getCardPlace(card_id) == Player::PlaceTable)
-                            return QStringList("wooden_ox!");
+                    } else if (move.from_places[i] == Player::PlaceTable) {
+                        QVariantList record = room->getTag("wooden_ox_temp").toList();
+                        foreach (QVariant card_data, record) {
+                            int card_id = card_data.toInt();
+                            if (room->getCardPlace(card_id) == Player::PlaceTable)
+                                return QStringList("wooden_ox!");
+                        }
                     }
+                    break;
                 }
-                break;
             }
         }
+
         return QStringList();
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    virtual bool effect(TriggerEvent , Room *room, ServerPlayer *, QVariant &data, ServerPlayer *) const
     {
-        CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-
-        for (int i = 0; i < move.card_ids.size(); i++) {
-            const Card *card = Sanguosha->getEngineCard(move.card_ids[i]);
-            if (card->objectName() == "wooden_ox") {
-                if (move.from_places[i] == Player::PlaceEquip) {
-                    ServerPlayer *player = (ServerPlayer *)move.from;
-                    if (!player || player->getPile("wooden_ox").isEmpty()) return false;
-                    ServerPlayer *to = (ServerPlayer *)move.to;
-                    if (to && to->getTreasure() && to->getTreasure()->objectName() == "wooden_ox"
-                        && move.to_place == Player::PlaceEquip) {
-                        QList<ServerPlayer *> p_list;
-                        p_list << to;
-                        to->addToPile("wooden_ox", player->getPile("wooden_ox"), false, p_list);
-                    } else if (move.to_place == Player::PlaceTable && move.reason.m_reason == CardMoveReason::S_REASON_SWAP) {
-                        room->setTag("wooden_ox_temp", IntList2VariantList(player->getPile("wooden_ox")));
-                        CardsMoveStruct move(player->getPile("wooden_ox"), NULL, Player::PlaceTable,
-                            CardMoveReason(CardMoveReason::S_REASON_SECRETLY_PUT, player->objectName(), "wooden_ox", QString()));
-                        room->moveCardsAtomic(move, false);
-                    } else {
-                        player->clearOnePrivatePile("wooden_ox");
+        QVariantList move_datas = data.toList();
+        foreach(QVariant move_data, move_datas) {
+            CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
+            for (int i = 0; i < move.card_ids.size(); i++) {
+                const Card *card = Sanguosha->getEngineCard(move.card_ids[i]);
+                if (card->objectName() == "wooden_ox") {
+                    if (move.from_places[i] == Player::PlaceEquip) {
+                        ServerPlayer *player = (ServerPlayer *)move.from;
+                        if (!player || player->getPile("wooden_ox").isEmpty()) return false;
+                        ServerPlayer *to = (ServerPlayer *)move.to;
+                        if (to && to->getTreasure() && to->getTreasure()->objectName() == "wooden_ox"
+                            && move.to_place == Player::PlaceEquip) {
+                            QList<ServerPlayer *> p_list;
+                            p_list << to;
+                            to->addToPile("wooden_ox", player->getPile("wooden_ox"), false, p_list);
+                        } else if (move.to_place == Player::PlaceTable && move.reason.m_reason == CardMoveReason::S_REASON_SWAP) {
+                            room->setTag("wooden_ox_temp", IntList2VariantList(player->getPile("wooden_ox")));
+                            CardsMoveStruct move(player->getPile("wooden_ox"), NULL, Player::PlaceTable,
+                                CardMoveReason(CardMoveReason::S_REASON_SECRETLY_PUT, player->objectName(), "wooden_ox", QString()));
+                            room->moveCardsAtomic(move, false);
+                        } else {
+                            player->clearOnePrivatePile("wooden_ox");
+                        }
+                    } else if (move.from_places[i] == Player::PlaceTable) {
+                        QVariantList record = room->getTag("wooden_ox_temp").toList();
+                        QList<int> cardsToGet;
+                        foreach (QVariant card_data, record) {
+                            int card_id = card_data.toInt();
+                            if (room->getCardPlace(card_id) == Player::PlaceTable)
+                                cardsToGet << card_id;
+                        }
+                        if (cardsToGet.isEmpty()) return false;
+                        ServerPlayer *to = (ServerPlayer *)move.to;
+                        if (to && to->getTreasure() && to->getTreasure()->objectName() == "wooden_ox"
+                            && move.to_place == Player::PlaceEquip) {
+                            QList<ServerPlayer *> p_list;
+                            p_list << to;
+                            to->addToPile("wooden_ox", cardsToGet, false, p_list);
+                        } else {
+                            DummyCard *dummy = new DummyCard(cardsToGet);
+                            dummy->deleteLater();
+                            CardMoveReason reason(CardMoveReason::S_REASON_NATURAL_ENTER, QString());
+                            room->throwCard(dummy, reason, NULL);
+                        }
                     }
-                } else if (move.from_places[i] == Player::PlaceTable) {
-                    QVariantList record = room->getTag("wooden_ox_temp").toList();
-                    QList<int> cardsToGet;
-                    foreach (QVariant card_data, record) {
-                        int card_id = card_data.toInt();
-                        if (room->getCardPlace(card_id) == Player::PlaceTable)
-                            cardsToGet << card_id;
-                    }
-                    if (cardsToGet.isEmpty()) return false;
-                    ServerPlayer *to = (ServerPlayer *)move.to;
-                    if (to && to->getTreasure() && to->getTreasure()->objectName() == "wooden_ox"
-                        && move.to_place == Player::PlaceEquip) {
-                        QList<ServerPlayer *> p_list;
-                        p_list << to;
-                        to->addToPile("wooden_ox", cardsToGet, false, p_list);
-                    } else {
-                        DummyCard *dummy = new DummyCard(cardsToGet);
-                        dummy->deleteLater();
-                        CardMoveReason reason(CardMoveReason::S_REASON_NATURAL_ENTER, QString());
-                        room->throwCard(dummy, reason, NULL);
-                    }
+                    return false;
                 }
-                return false;
             }
         }
         return false;

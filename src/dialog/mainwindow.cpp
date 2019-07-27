@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setWindowTitle(tr("Sanguosha"));
+    setWindowTitle(tr("Sanguosha")+Sanguosha->getVersionNumber());
 
     scene = NULL;
 
@@ -456,8 +456,8 @@ void MainWindow::on_actionAbout_triggered()
     content.append(QString("<p align='right'><i>%1</i></p>").arg(poem));
 
     // Cao Cao's signature
-    QString signature = tr("\"A Short Song\" by Cao Cao");
-    content.append(QString("<p align='right'><i>%1</i></p>").arg(signature));
+    //QString signature = tr("\"A Short Song\" by Cao Cao");
+    //content.append(QString("<p align='right'><i>%1</i></p>").arg(signature));
 
     QString email = "moligaloo@gmail.com";
     content.append(tr("This is the open source clone of the popular <b>Sanguosha</b> game,"

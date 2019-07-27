@@ -60,6 +60,8 @@ public:
     RoomThread *getThread() const;
     ServerPlayer *getCurrent() const;
     void setCurrent(ServerPlayer *current);
+    ServerPlayer *getNormalCurrent() const;
+    void setNormalCurrent(ServerPlayer *current);
     int alivePlayerCount() const;
     QList<ServerPlayer *> getOtherPlayers(ServerPlayer *except, bool include_dead = false) const;
     QList<ServerPlayer *> getPlayers() const;
@@ -70,7 +72,7 @@ public:
     void enterDying(ServerPlayer *player, DamageStruct *reason);
     ServerPlayer *getCurrentDyingPlayer() const;
     void killPlayer(ServerPlayer *victim, DamageStruct *reason = NULL);
-    void revivePlayer(ServerPlayer *player, bool sendlog = false);
+    void revivePlayer(ServerPlayer *player, bool sendlog = false, bool emotion = true);
     QStringList aliveRoles(ServerPlayer *except = NULL) const;
     void gameOver(const QString &winner);
     void slashEffect(const SlashEffectStruct &effect);
@@ -81,9 +83,9 @@ public:
     void handleAcquireDetachSkills(ServerPlayer *player, const QString &skill_names, bool acquire_only = false);
     void setPlayerFlag(ServerPlayer *player, const QString &flag);
     void setPlayerProperty(ServerPlayer *player, const char *property_name, const QVariant &value);
-    void setPlayerMark(ServerPlayer *player, const QString &mark, int value);
-    void addPlayerMark(ServerPlayer *player, const QString &mark, int add_num = 1);
-    void removePlayerMark(ServerPlayer *player, const QString &mark, int remove_num = 1);
+    void setPlayerMark(ServerPlayer *player, const QString &mark, int value, bool trigger = false);
+    void addPlayerMark(ServerPlayer *player, const QString &mark, int add_num = 1, bool trigger = false);
+    void removePlayerMark(ServerPlayer *player, const QString &mark, int remove_num = 1, bool trigger = false);
     void addPlayerTip(ServerPlayer *player, const QString &mark);
     void removePlayerTip(ServerPlayer *player, const QString &mark);
     void setPlayerCardLimitation(ServerPlayer *player, const QString &limit_list,
@@ -247,10 +249,14 @@ public:
     bool broadcastResetCard(const QList<ServerPlayer *> &players, int cardId);
 
     bool broadcastProperty(ServerPlayer *player, const char *property_name, const QString &value = QString());
+    bool broadcastProperty(const QList<ServerPlayer *> &players, ServerPlayer *player, const char *property_name, const QString &value = QString());
+    bool broadcastProperty(ServerPlayer *target, ServerPlayer *player, const char *property_name, const QString &value = QString());
     void notifySkillInvoked(ServerPlayer *player, const QString &skill_name);
 	void broadcastSkillInvoke(const QString &skillName, const ServerPlayer *player = NULL, int type = -1);
     bool broadcastSkillInvoke(const QString &skillName, const ServerPlayer *player, const QList<int> &types);
     void broadcastSkillInvoke(const QString &skillName, const QString &category);
+    void broadcastSkillInvoke(const QString &skillName, int type);
+    void broadcastSkillInvoke(const QString &skillName, bool isMale, int type);
     void doLightbox(const QString &lightboxName, int duration = 2000, int pixelSize = 0);
     void doSuperLightbox(const QString &heroName, const QString &skillName);
     void doAnimate(QSanProtocol::AnimateType type, const QString &arg1 = QString(), const QString &arg2 = QString(),
@@ -313,7 +319,10 @@ public:
     void removeTag(const QString &key);
 
     void setEmotion(ServerPlayer *target, const QString &emotion);
-	void setCardEmotion(ServerPlayer *target, const Card *card);
+    void setFullEmotion(const QString &emotion, const int &dx = 0, const int &dy = 0);
+    void playRoomAudio(const QString &path, bool superpose = true);
+    void playSystemAudio(const QString &audio, bool superpose = true);
+    void setCardEmotion(ServerPlayer *target, const Card *card);
 
     Player::Place getCardPlace(int card_id) const;
     bool isAllOnPlace(const Card *virtual_card, Player::Place place) const;
@@ -436,6 +445,18 @@ public:
 
     void preventDamage(const DamageStruct &damage);
 
+    void changeLesbianSkill();
+    int getBoatTreasure(const QString &kingdom) const;
+    void speakRanks(bool over = false);
+    int getTreasureRank(const QString &kingdom) const;
+    QString getRankKingdom(int rank) const;
+    QString appearYearBoss(int difficulty);
+    bool getChangingSituation() const;
+    void setChangingSituation(bool sit);
+    void doGanluRevive(ServerPlayer *player, ServerPlayer *recorder = NULL, bool emotion = true);
+    QString appearNextYear();
+    void breakAndNewTurn(ServerPlayer *player);
+
 protected:
     virtual void run();
     int _m_Id;
@@ -537,7 +558,7 @@ private:
     QString mode;
     QList<ServerPlayer *> m_players, m_alivePlayers;
     int player_count;
-    ServerPlayer *current;
+    ServerPlayer *current, *normalcurrent;
     QList<int> pile1, pile2;
     QList<int> table_cards;
     QList<int> *m_drawPile, *m_discardPile;
@@ -593,11 +614,22 @@ private:
 
     static QString generatePlayerName();
     void prepareForStart();
+    void assignKingdomForPlayers();
     void assignGeneralsForPlayers(const QList<ServerPlayer *> &to_assign);
     void assignGeneralsForPlayersOfJianGeDefenseMode(const QList<ServerPlayer *> &to_assign);
+    void assignGeneralsForPlayersOfHongyanRace(const QList<ServerPlayer *> &to_assign);
+    void assignGeneralsForPlayersOfDragonBoatRace(const QList<ServerPlayer *> &to_assign);
+    void assignGeneralsForPlayerOfGodsReturnMode(ServerPlayer *to_assign, const QStringList &gods = QStringList());
+    void assignGeneralsForPlayersOfAttackDongMode(const QList<ServerPlayer *> &to_assign, const QString &bossname);
+    void assignGeneralsForPlayersOfYearBossMode(const QList<ServerPlayer *> &to_assign, const int &sclass);
     void chooseGenerals(QList<ServerPlayer *> players = QList<ServerPlayer *>());
     void chooseGeneralsOfJianGeDefenseMode();
     void chooseGeneralsOfBestLoyalistMode(QList<ServerPlayer *> players = QList<ServerPlayer *>());
+    void chooseGeneralsOfHongyanRace(QList<ServerPlayer *> players = QList<ServerPlayer *>());
+    void chooseGeneralsOfDragonBoatRace(QList<ServerPlayer *> players = QList<ServerPlayer *>());
+    void chooseGeneralsOfGodsReturnMode(QList<ServerPlayer *> players = QList<ServerPlayer *>());
+    void chooseGeneralsOfAttackDongMode(QList<ServerPlayer *> players = QList<ServerPlayer *>());
+    void chooseGeneralsOfYearBossMode(QList<ServerPlayer *> players = QList<ServerPlayer *>());
     AI *cloneAI(ServerPlayer *player);
     void broadcast(const QByteArray &message, ServerPlayer *except = NULL);
     void initCallbacks();
@@ -619,6 +651,7 @@ private:
 	
     static bool isSkillValidForPlayer(const ServerPlayer *player, const Skill *skill);
     int m_turn;
+    bool isChanging;
 
 private slots:
     void endaskfornull();

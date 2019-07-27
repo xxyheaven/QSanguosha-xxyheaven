@@ -58,7 +58,7 @@ public:
     };
     enum Role
     {
-        Lord, Loyalist, Rebel, Renegade
+        Lord, Loyalist, Rebel, Renegade, DragonShu, DragonQun, DragonWei, DragonWu,
     };
 
     explicit Player(QObject *parent);
@@ -73,6 +73,7 @@ public:
     void setMaxHp(int max_hp);
     int getLostHp() const;
     bool isWounded() const;
+    bool isYourFriend(const Player *fri) const;
     General::Gender getGender() const;
     virtual void setGender(General::Gender gender);
     bool isMale() const;
@@ -106,7 +107,9 @@ public:
     QString getState() const;
 
     int getSeat() const;
+    int getRealSeat() const;
     void setSeat(int seat);
+    void setRealSeat(int seat);
     bool isAdjacentTo(const Player *another) const;
     QString getPhaseString() const;
     void setPhaseString(const QString &phase_str);
@@ -293,7 +296,7 @@ private:
     QString role;
     bool role_shown;
     QString state;
-    int seat;
+    int seat, rseat;
     bool alive;
 
     Phase phase;

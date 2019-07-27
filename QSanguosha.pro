@@ -137,7 +137,8 @@ SOURCES += \
     src/package/thunder.cpp \
     src/package/spark.cpp \
     src/package/chaos.cpp \
-    src/package/compete-world.cpp
+    src/package/compete-world.cpp \
+    src/ui/guhuodialog.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -267,7 +268,8 @@ HEADERS += \
     src/package/thunder.h \
     src/package/spark.h \
     src/package/chaos.h \
-    src/package/compete-world.h
+    src/package/compete-world.h \
+    src/ui/guhuodialog.h
 
 FORMS += \
     src/dialog/cardoverview.ui \

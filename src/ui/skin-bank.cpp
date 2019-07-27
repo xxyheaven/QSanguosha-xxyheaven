@@ -30,16 +30,28 @@ const char *QSanRoomSkin::S_SKIN_KEY_DASHBOARD = "dashboard";
 
 // buttons
 const char *QSanRoomSkin::S_SKIN_KEY_BUTTON = "button-%1";
-const char *QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG = "dashboardButtonSetBg";
+const char *QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_BUTTOM = "dashboardButtonSetButtom";
+const char *QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_BUTTOM_OLD = "dashboardButtonSetButtomOld";
+const char *QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG[7] =
+    {"dashboardButtonSetBg", "dashboardButtonSetBg1", "dashboardButtonSetBg2", "dashboardButtonSetBg3",
+                              "dashboardButtonSetBg4", "dashboardButtonSetBg5", "dashboardButtonSetBg6"};
+const char *QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG_OLD[7] =
+    {"dashboardButtonSetBgOld", "dashboardButtonSetBgOld1", "dashboardButtonSetBgOld2", "dashboardButtonSetBgOld3",
+                              "dashboardButtonSetBgOld4", "dashboardButtonSetBgOld5", "dashboardButtonSetBgOld6"};
 const char *QSanRoomSkin::S_SKIN_KEY_BUTTON_SKILL = "skill";
 
 // player container
 const char *QSanRoomSkin::S_SKIN_KEY_EQUIP_ICON = "%1Equip-%2";
 const char *QSanRoomSkin::S_SKIN_KEY_HORSE_ICON = "%1Horse-%2";
-const char *QSanRoomSkin::S_SKIN_KEY_MAINFRAME = "%1MainFrame";
-const char *QSanRoomSkin::S_SKIN_KEY_LEFTFRAME = "%1LeftFrame";
-const char *QSanRoomSkin::S_SKIN_KEY_RIGHTFRAME = "%1RightFrame";
-const char *QSanRoomSkin::S_SKIN_KEY_MIDDLEFRAME = "%1MiddleFrame";
+const char *QSanRoomSkin::S_SKIN_KEY_MAINFRAME[7] =
+    {"%1MainFrame", "%1MainFrame1", "%1MainFrame2", "%1MainFrame3", "%1MainFrame4", "%1MainFrame5", "%1MainFrame6"};
+const char *QSanRoomSkin::S_SKIN_KEY_LEFTFRAME[7] =
+    { "%1LeftFrame", "%1LeftFrame1", "%1LeftFrame2", "%1LeftFrame3", "%1LeftFrame4", "%1LeftFrame5", "%1LeftFrame6"};
+const char *QSanRoomSkin::S_SKIN_KEY_RIGHTFRAME[7] =
+    {"%1RightFrame", "%1RightFrame1", "%1RightFrame2", "%1RightFrame3", "%1RightFrame4", "%1RightFrame5", "%1RightFrame6"};
+const char *QSanRoomSkin::S_SKIN_KEY_MIDDLEFRAME[7] =
+    {"%1MiddleFrame", "%1MiddleFrame1", "%1MiddleFrame2", "%1MiddleFrame3", "%1MiddleFrame4", "%1MiddleFrame5", "%1MiddleFrame6"};
+const char *QSanRoomSkin::S_SKIN_KEY_FLOWERFRAME = "%1FlowerFrame";
 const char *QSanRoomSkin::S_SKIN_KEY_HANDCARDNUM = "%1HandCardNum-%2";
 const char *QSanRoomSkin::S_SKIN_KEY_FACETURNEDMASK = "%1FaceTurnedMask";
 const char *QSanRoomSkin::S_SKIN_KEY_BLANK_GENERAL = "%1BlankGeneral";
@@ -54,7 +66,8 @@ const char *QSanRoomSkin::S_SKIN_KEY_VOTES_NUMBER = "votesNum-%1";
 const char *QSanRoomSkin::S_SKIN_KEY_SEAT_NUMBER = "%1SeatNum-%2";
 const char *QSanRoomSkin::S_SKIN_KEY_SAVE_ME_ICON = "saveMe";
 const char *QSanRoomSkin::S_SKIN_KEY_ACTIONED_ICON = "playerActioned";
-const char *QSanRoomSkin::S_SKIN_KEY_HAND_CARD_BACK = "handCardBack";
+const char *QSanRoomSkin::S_SKIN_KEY_HAND_CARD_BACK[7] =
+    {"handCardBack", "handCardBack1", "handCardBack2", "handCardBack3", "handCardBack4", "handCardBack5", "handCardBack6"};
 const char *QSanRoomSkin::S_SKIN_KEY_HAND_CARD_SUIT = "handCardSuit-%1";
 const char *QSanRoomSkin::S_SKIN_KEY_JUDGE_CARD_ICON = "judgeCardIcon-%1";
 const char *QSanRoomSkin::S_SKIN_KEY_HAND_CARD_FRAME = "handCardFrame-%1";
@@ -327,7 +340,7 @@ bool QSanRoomSkin::generalHasSkin(const QString &general, const int skinId, cons
 
 QPixmap QSanRoomSkin::getCardMainPixmap(const QString &cardName) const
 {
-    if (cardName == "unknown") return getPixmap("handCardBack");
+    if (cardName == "unknown") return getPixmap(S_SKIN_KEY_HAND_CARD_BACK[Config.GeneralLevel]);
     QString name = cardName;
     if (ServerInfo.GameMode == "06_3v3" && name.startsWith("vs_"))
         name = name.mid(3);
@@ -1117,9 +1130,13 @@ bool QSanRoomSkin::_loadLayoutConfig(const QVariant &layout)
     tryParse(config["floatingAreaHeight"], _m_dashboardLayout.m_floatingAreaHeight);
     tryParse(config["focusFrameArea"], _m_dashboardLayout.m_focusFrameArea);
     tryParse(config["buttonSetSize"], _m_dashboardLayout.m_buttonSetSize);
+    tryParse(config["buttonSetSizeOld"], _m_dashboardLayout.m_buttonSetSizeOld);
     tryParse(config["confirmButtonArea"], _m_dashboardLayout.m_confirmButtonArea);
     tryParse(config["cancelButtonArea"], _m_dashboardLayout.m_cancelButtonArea);
     tryParse(config["discardButtonArea"], _m_dashboardLayout.m_discardButtonArea);
+    tryParse(config["confirmButtonAreaOld"], _m_dashboardLayout.m_confirmButtonAreaOld);
+    tryParse(config["cancelButtonAreaOld"], _m_dashboardLayout.m_cancelButtonAreaOld);
+    tryParse(config["discardButtonAreaOld"], _m_dashboardLayout.m_discardButtonAreaOld);
     tryParse(config["trustButtonArea"], _m_dashboardLayout.m_trustButtonArea);
     tryParse(config["equipBorderPos"], _m_dashboardLayout.m_equipBorderPos);
     tryParse(config["equipSelectedOffset"], _m_dashboardLayout.m_equipSelectedOffset);

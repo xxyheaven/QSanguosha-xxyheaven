@@ -27,6 +27,7 @@
 #include "cardchoosebox.h"
 #include "pindianbox.h"
 #include "heroskincontainer.h"
+#include "guhuodialog.h"
 
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
@@ -181,6 +182,8 @@ RoomScene::RoomScene(QMainWindow *main_window)
     connect(ClientInstance, SIGNAL(gongxin(QList<int>, bool, QList<int>)), this, SLOT(doGongxin(QList<int>, bool, QList<int>)));
     connect(ClientInstance, SIGNAL(focus_moved(QStringList, QSanProtocol::Countdown)), this, SLOT(moveFocus(QStringList, QSanProtocol::Countdown)));
     connect(ClientInstance, SIGNAL(emotion_set(QString, QString)), this, SLOT(setEmotion(QString, QString)));
+    connect(ClientInstance, SIGNAL(full_emotion_set(QString, int, int)), this, SLOT(setFullEmotion(QString, int, int)));
+    connect(ClientInstance, SIGNAL(room_audio_play(QString, bool)), this, SLOT(playRoomAudio(QString, bool)));
     connect(ClientInstance, SIGNAL(skill_invoked(QString, QString)), this, SLOT(showSkillInvocation(QString, QString)));
     connect(ClientInstance, SIGNAL(skill_acquired(const ClientPlayer *, QString)), this, SLOT(acquireSkill(const ClientPlayer *, QString)));
     connect(ClientInstance, SIGNAL(animated(int, QStringList)), this, SLOT(doAnimation(int, QStringList)));
@@ -247,6 +250,11 @@ RoomScene::RoomScene(QMainWindow *main_window)
     addItem(m_chooseOptionsBox);
     m_chooseOptionsBox->setZValue(30000.0);
     m_chooseOptionsBox->moveBy(-120, 0);
+
+    m_fullemotion = new QGraphicsPixmapItem;
+    addItem(m_fullemotion);
+    m_fullemotion->setZValue(50000);
+    m_fullemotion->setPos(0, 0);
 
     m_playerCardBox = new PlayerCardBox;
     m_playerCardBox->hide();
@@ -637,7 +645,12 @@ void RoomScene::handleGameEvent(const QVariant &args)
         if (player && (player->hasSkill(skill_name, true) || player->hasEquipSkill(skill_name)) && player != Self) {
             PlayerCardContainer *container = (PlayerCardContainer *)_getGenericCardContainer(Player::PlaceHand, player);
             Photo *photo = qobject_cast<Photo *>(container);
-            if (photo) photo->showSkillName(skill_name);
+            if (photo)
+            {
+                photo->showSkillName(skill_name);
+                QString skillEmotion = QString("skill/%1").arg(skill_name);
+                setEmotion(player_name, skillEmotion);
+            }
         }
         break;
     }
@@ -671,24 +684,49 @@ void RoomScene::handleGameEvent(const QVariant &args)
 
 QGraphicsPixmapItem *RoomScene::createDashboardButtons()
 {
-    QGraphicsPixmapItem *widget = new QGraphicsPixmapItem(G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG)
-        .scaled(G_DASHBOARD_LAYOUT.m_buttonSetSize));
+    if (!Config.value("UseOldButtons", false).toBool())
+    {
+        QGraphicsPixmapItem *widget = new QGraphicsPixmapItem(G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_BUTTOM)
+            .scaled(G_DASHBOARD_LAYOUT.m_buttonSetSize));
+        ok_button = new QSanButton("platter", "confirm", widget);
+        ok_button->setRect(G_DASHBOARD_LAYOUT.m_confirmButtonArea);
+        cancel_button = new QSanButton("platter", "cancel", widget);
+        cancel_button->setRect(G_DASHBOARD_LAYOUT.m_cancelButtonArea);
+        discard_button = new QSanButton("platter", "discard", widget);
+        discard_button->setRect(G_DASHBOARD_LAYOUT.m_discardButtonArea);
+        connect(ok_button, SIGNAL(clicked()), this, SLOT(doOkButton()));
+        connect(cancel_button, SIGNAL(clicked()), this, SLOT(doCancelButton()));
+        connect(discard_button, SIGNAL(clicked()), this, SLOT(doDiscardButton()));
 
-    ok_button = new QSanButton("platter", "confirm", widget);
-    ok_button->setRect(G_DASHBOARD_LAYOUT.m_confirmButtonArea);
-    cancel_button = new QSanButton("platter", "cancel", widget);
-    cancel_button->setRect(G_DASHBOARD_LAYOUT.m_cancelButtonArea);
-    discard_button = new QSanButton("platter", "discard", widget);
-    discard_button->setRect(G_DASHBOARD_LAYOUT.m_discardButtonArea);
-    connect(ok_button, SIGNAL(clicked()), this, SLOT(doOkButton()));
-    connect(cancel_button, SIGNAL(clicked()), this, SLOT(doCancelButton()));
-    connect(discard_button, SIGNAL(clicked()), this, SLOT(doDiscardButton()));
+        // set them all disabled
+        ok_button->setEnabled(false);
+        cancel_button->setEnabled(false);
+        discard_button->setEnabled(false);
 
-    // set them all disabled
-    ok_button->setEnabled(false);
-    cancel_button->setEnabled(false);
-    discard_button->setEnabled(false);
-    return widget;
+        return widget;
+    }
+    else
+    {
+        QGraphicsPixmapItem *widget = new QGraphicsPixmapItem(G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_BUTTOM_OLD)
+                .scaled(G_DASHBOARD_LAYOUT.m_buttonSetSizeOld));
+
+        ok_button = new QSanButton("platterold", "confirm", widget);
+        ok_button->setRect(G_DASHBOARD_LAYOUT.m_confirmButtonAreaOld);
+        cancel_button = new QSanButton("platterold", "cancel", widget);
+        cancel_button->setRect(G_DASHBOARD_LAYOUT.m_cancelButtonAreaOld);
+        discard_button = new QSanButton("platterold", "discard", widget);
+        discard_button->setRect(G_DASHBOARD_LAYOUT.m_discardButtonAreaOld);
+        connect(ok_button, SIGNAL(clicked()), this, SLOT(doOkButton()));
+        connect(cancel_button, SIGNAL(clicked()), this, SLOT(doCancelButton()));
+        connect(discard_button, SIGNAL(clicked()), this, SLOT(doDiscardButton()));
+
+        // set them all disabled
+        ok_button->setEnabled(false);
+        cancel_button->setEnabled(false);
+        discard_button->setEnabled(false);
+
+        return widget;
+    }
 }
 
 QRectF ReplayerControlBar::boundingRect() const
@@ -951,7 +989,7 @@ void RoomScene::updateTable()
     // ------------------------
     // region 5 = 0 + 3, region 6 = 2 + 4, region 7 = 0 + 1 + 2
 
-    static int regularSeatIndex[][9] = {
+    static int regularSeatIndex[][11] = {
         { 1 },
         { 5, 6 },
         { 5, 1, 6 },
@@ -960,7 +998,9 @@ void RoomScene::updateTable()
         { 5, 5, 1, 1, 6, 6 },
         { 5, 5, 1, 1, 1, 6, 6 },
         { 3, 3, 7, 7, 7, 7, 4, 4 },
-        { 3, 3, 7, 7, 7, 7, 7, 4, 4 }
+        { 3, 3, 7, 7, 7, 7, 7, 4, 4 },
+        { 3, 3, 7, 7, 7, 7, 7, 7, 4, 4},
+        { 5, 5, 5, 1, 1, 1, 1, 1, 6, 6, 6},
     };
     static int hulaoSeatIndex[][3] = {
         { 1, 1, 1 }, // if self is shenlvbu
@@ -1176,6 +1216,9 @@ void RoomScene::arrangeSeats(const QList<const ClientPlayer *> &seats)
     }
 
     dashboard->showSeat();
+
+    foreach (Photo *photo, photos)
+        photo->showSeat();
 }
 
 void RoomScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -2163,11 +2206,13 @@ void RoomScene::addSkillButton(const Skill *skill)
         connect(btn, (void (QSanSkillButton::*)())(&QSanSkillButton::skill_deactivated), dashboard, &Dashboard::skillButtonDeactivated);
         connect(btn, (void (QSanSkillButton::*)())(&QSanSkillButton::skill_deactivated), this, &RoomScene::onSkillDeactivated);
     }
-    QDialog *dialog = skill->getDialog();
+    GuhuoDialog *dialog = skill->getDialog();
     if (dialog && !m_replayControl) {
         dialog->setParent(main_window, Qt::Dialog);
-        connect(btn, (void (QSanSkillButton::*)())(&QSanSkillButton::skill_activated), dialog, &QDialog::exec); //???????????????????????
-        connect(btn, (void (QSanSkillButton::*)())(&QSanSkillButton::skill_deactivated), dialog, &QDialog::reject);
+        connect(btn, (void (QSanSkillButton::*)())(&QSanSkillButton::skill_activated), dialog, &GuhuoDialog::popup); //???????????????????????
+        connect(btn, (void (QSanSkillButton::*)())(&QSanSkillButton::skill_deactivated), dialog, &GuhuoDialog::reject);
+        disconnect(btn, (void (QSanSkillButton::*)())(&QSanSkillButton::skill_activated), this, &RoomScene::onSkillActivated);
+        connect(dialog, &GuhuoDialog::onButtonClick, this, &RoomScene::onSkillDialogActivated);
         // design for guhuo and qice. now it is just for DIY.
     }
 
@@ -2321,6 +2366,8 @@ void RoomScene::useSelectedCard()
         dashboard->stopPending();
 
     dashboard->unselectAll();
+
+    dashboard->clearHighlightEquip();
 }
 
 void RoomScene::onEnabledChange()
@@ -2765,6 +2812,8 @@ void RoomScene::updateStatus(Client::Status oldStatus, Client::Status newStatus)
     }
     }
 
+    dashboard->clearHighlightEquip();
+
     if (newStatus != oldStatus && newStatus != Client::Playing && newStatus != Client::NotActive)
         QApplication::alert(QApplication::focusWidget());
 
@@ -2832,6 +2881,49 @@ void RoomScene::onSkillActivated()
         const Card *card = dashboard->pendingCard();
         if (card && card->targetFixed() && card->isAvailable(Self) && vs_skill->inherits("ZeroCardViewAsSkill"))
             useSelectedCard();
+    }
+}
+
+void RoomScene::onSkillDialogActivated()
+{
+    QSanSkillButton *button = qobject_cast<QSanSkillButton *>(sender());
+    const ViewAsSkill *skill = NULL;
+    if (button)
+        skill = button->getViewAsSkill();
+    else {
+        QDialog *dialog = qobject_cast<QDialog *>(sender());
+        if (dialog)
+            skill = Sanguosha->getViewAsSkill(dialog->objectName());
+    }
+
+    if (skill && !skill->inherits("FilterSkill")) {
+        dashboard->startPending(skill);
+        //ok_button->setEnabled(false);
+        cancel_button->setEnabled(true);
+
+        const Card *card = dashboard->pendingCard();
+        if (card && card->targetFixed() && card->isAvailable(Self)) {
+            bool instance_use = skill->inherits("ZeroCardViewAsSkill");
+            if (!instance_use) {
+                QList<const Card *> cards;
+                cards << Self->getHandcards() << Self->getEquips();
+
+                foreach (const QString &name, dashboard->getPileExpanded()) {
+                    QList<int> pile = Self->getPile(name);
+                    foreach(int id, pile)
+                        cards << Sanguosha->getCard(id);
+                }
+
+                foreach (const Card *c, cards) {
+                    if (skill->viewFilter(QList<const Card *>(), c))
+                        return;
+                }
+                instance_use = true;
+            }
+            if (instance_use)
+                useSelectedCard();
+        } else if (skill->inherits("OneCardViewAsSkill") && !skill->getDialog() && Config.EnableIntellectualSelection)
+            dashboard->selectOnlyCard(ClientInstance->getStatus() == Client::Playing);
     }
 }
 
@@ -2922,6 +3014,8 @@ void RoomScene::doCancelButton()
     default:
         break;
     }
+
+    dashboard->clearHighlightEquip();
 }
 
 void RoomScene::doDiscardButton()
@@ -2981,9 +3075,9 @@ Dashboard *RoomScene::getDasboard() const
 
 void RoomScene::setTurn(int number)
 {
-    if (number == 0)
+    if (number < 0)
         turn_box->hide();
-    else if (number > 0) {
+    else if (number >= 0) {
         turn_box->setText(tr("%1Turn").arg(number));
         turn_box->setPos(_m_infoPlane.x() - turn_box->boundingRect().width(), 0);
         turn_box->show();
@@ -4065,8 +4159,15 @@ void RoomScene::setEmotion(const QString &who, const QString &emotion)
     } else {
         PixmapAnimation *pma = PixmapAnimation::GetPixmapAnimation(dashboard, emotion);
         if (pma) {
-            if (emotion == "damage" || emotion == "chain") {
-                pma->moveBy(576, -6);
+            if (emotion == "damage" || emotion == "chain" || emotion == "appear4" || emotion == "appear5") {
+                //pma->moveBy(576, -6);
+                pma->setPos(dashboard->boundingRect().topLeft());
+                pma->moveBy(dashboard->getAvatarArea().center().x(), dashboard->getAvatarArea().center().y());
+                pma->moveBy(-pma->boundingRect().width() / 2, -pma->boundingRect().height() / 2);
+                if (emotion == "appear5")
+                    pma->moveBy(-8, -23);
+                else if (emotion == "appear4")
+                    pma->moveBy(-4, -10);
             }
             //skill animation
             else if (emotion.startsWith("skill/")) {
@@ -4079,6 +4180,20 @@ void RoomScene::setEmotion(const QString &who, const QString &emotion)
             pma->setZValue(20002.0);
         }
     }
+}
+
+void RoomScene::setFullEmotion(const QString &emotion, const int &dx, const int &dy)
+{
+    PixmapAnimation *pma = PixmapAnimation::GetPixmapAnimation(m_fullemotion, QString("full/") + emotion);
+    pma->setPos(tableCenterPos().x(), height() / 2 - dashboard->boundingRect().height() / 2);
+    pma->moveBy(-pma->boundingRect().width() / 2, -pma->boundingRect().height() / 2);
+    pma->moveBy(-dx, -dy);
+    pma->setZValue(20002.0);
+}
+
+void RoomScene::playRoomAudio(const QString &path, bool superpose)
+{
+    Sanguosha->playAudioEffect(path, superpose);
 }
 
 void RoomScene::showSkillInvocation(const QString &who, const QString &skill_name)
@@ -4309,7 +4424,7 @@ void RoomScene::showIndicator(const QString &from, const QString &to, int secs)
     QPointF start = obj1->sceneBoundingRect().center();
     QPointF finish = obj2->sceneBoundingRect().center();
 
-    IndicatorItem *indicator = new IndicatorItem(start, finish, ClientInstance->getPlayer(from));
+    IndicatorItem *indicator = new IndicatorItem(start, finish, ClientInstance->getPlayer(from), Config.GeneralLevel);
 
     qreal x = qMin(start.x(), finish.x());
     qreal y = qMin(start.y(), finish.y());
@@ -4921,14 +5036,28 @@ void RoomScene::updateVolumeConfig()
 
 void RoomScene::redrawDashboardButtons()
 {
-    ok_button->redraw();
-    ok_button->setRect(G_DASHBOARD_LAYOUT.m_confirmButtonArea);
+    if (!Config.value("UseOldButtons", false).toBool())
+    {
+        ok_button->redraw();
+        ok_button->setRect(G_DASHBOARD_LAYOUT.m_confirmButtonArea);
 
-    cancel_button->redraw();
-    cancel_button->setRect(G_DASHBOARD_LAYOUT.m_cancelButtonArea);
+        cancel_button->redraw();
+        cancel_button->setRect(G_DASHBOARD_LAYOUT.m_cancelButtonArea);
 
-    discard_button->redraw();
-    discard_button->setRect(G_DASHBOARD_LAYOUT.m_discardButtonArea);
+        discard_button->redraw();
+        discard_button->setRect(G_DASHBOARD_LAYOUT.m_discardButtonArea);
+    }
+    else
+    {
+        ok_button->redraw();
+        ok_button->setRect(G_DASHBOARD_LAYOUT.m_confirmButtonAreaOld);
+
+        cancel_button->redraw();
+        cancel_button->setRect(G_DASHBOARD_LAYOUT.m_cancelButtonAreaOld);
+
+        discard_button->redraw();
+        discard_button->setRect(G_DASHBOARD_LAYOUT.m_discardButtonAreaOld);
+    }
 }
 
 void RoomScene::deletePromptInfoItem()

@@ -61,6 +61,7 @@ public:
     bool isAvatarUnderMouse();
 
     void highlightEquip(QString skillName, bool hightlight);
+    void clearHighlightEquip();
 
     void setTrust(bool trust);
     virtual void killPlayer();
@@ -230,7 +231,7 @@ protected:
     QSanButton *m_btnReverseSelection;
     QSanButton *m_btnSortHandcard;
     QSanButton *m_btnNoNullification;
-    QGraphicsPixmapItem *_m_leftFrame, *_m_middleFrame, *_m_rightFrame;
+    QGraphicsPixmapItem *_m_leftFrame, *_m_middleFrame, *_m_rightFrame, *_m_flowerFrame, *_m_treeFrame;
     // we can not draw bg directly _m_rightFrame because then it will always be
     // under avatar (since it's avatar's parent).
     //QGraphicsPixmapItem *_m_rightFrameBg;

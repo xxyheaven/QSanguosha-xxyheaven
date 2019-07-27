@@ -73,7 +73,7 @@ void PixmapAnimation::preStart()
     this->startTimer(S_DEFAULT_INTERVAL);
 }
 
-PixmapAnimation *PixmapAnimation::GetPixmapAnimation(QGraphicsItem *parent, const QString &emotion)
+PixmapAnimation *PixmapAnimation::GetPixmapAnimation(QGraphicsItem *parent, const QString &emotion, const int &delaymsec)
 {
     PixmapAnimation *pma = new PixmapAnimation();
     pma->setPath(QString("image/system/emotion/%1/").arg(emotion));
@@ -92,6 +92,10 @@ PixmapAnimation *PixmapAnimation::GetPixmapAnimation(QGraphicsItem *parent, cons
             pma->moveBy(0, -20);
         else if (emotion.contains("/spear"))
             pma->moveBy(-20, -20);
+        else if (emotion.contains("appear5"))
+            pma->moveBy(-8, -23);
+        else if (emotion.contains("appear4"))
+            pma->moveBy(-4, -10);
 
 		if (emotion != "destroy")
 			pma->moveBy((parent->boundingRect().width() - pma->boundingRect().width()) / 2,
@@ -99,10 +103,10 @@ PixmapAnimation *PixmapAnimation::GetPixmapAnimation(QGraphicsItem *parent, cons
 
         pma->setParentItem(parent);
         pma->setZValue(20002.0);
-        //if (emotion.contains("weapon")) {
-            //pma->hide();
-            //QTimer::singleShot(600, pma, SLOT(preStart()));
-        //} else
+        if (delaymsec > 0) {
+            pma->hide();
+            QTimer::singleShot(delaymsec, pma, SLOT(preStart()));
+        } else
             pma->startTimer(S_DEFAULT_INTERVAL);
 
         connect(pma, SIGNAL(finished()), pma, SLOT(deleteLater()));

@@ -268,9 +268,8 @@ public:
     {
         if (player == NULL || !player->hasSkill(objectName())) return QStringList();
         DeathStruct death = data.value<DeathStruct>();
-        if (death.who != player) return QStringList();
 
-        if (death.damage && death.damage->from && death.damage->from->isAlive())
+        if (death.who == player && death.damage && death.damage->from && death.damage->from->isAlive())
             return QStringList(objectName());
 
         return QStringList();

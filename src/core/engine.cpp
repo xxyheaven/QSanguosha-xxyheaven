@@ -317,24 +317,34 @@ Engine::Engine(bool isManualMode)
     //modes["02pbb"] = tr("2 players (using blance beam)");
     modes["02_1v1"] = tr("2 players (KOF style)");
     modes["03p"] = tr("3 players");
+    modes["03_1v2"] = tr("3 players (Dou Di Zhu)");
     modes["04p"] = tr("4 players");
     modes["04_1v3"] = tr("4 players (Hulao Pass)");
     modes["04_boss"] = tr("4 players(Boss)");
+    modes["04_year"] = tr("4 players (Year Boss)");
     modes["05p"] = tr("5 players");
+    modes["05_zhfd"] = tr("5 players (Attack Dongzhuo)");
     modes["06p"] = tr("6 players");
     modes["06pd"] = tr("6 players (2 renegades)");
     modes["06_3v3"] = tr("6 players (3v3)");
     modes["06_XMode"] = tr("6 players (XMode)");
+    modes["06_swzs"] = tr("6 players (Gods Return)");
     modes["07p"] = tr("7 players");
     modes["08p"] = tr("8 players");
     modes["08pd"] = tr("8 players (2 renegades)");
     modes["08pz"] = tr("8 players (0 renegade)");
     modes["08_defense"] = tr("8 players (JianGe Defense)");
     modes["08_zdyj"] = tr("8 players (Best Loyalist)");
+    modes["08_hongyan"] = tr("8 players (Hongyan Races)");
+    modes["08_dragonboat"] = tr("8 players (Dragon Bost Races)");
     modes["09p"] = tr("9 players");
     modes["10pd"] = tr("10 players");
     modes["10p"] = tr("10 players (1 renegade)");
     modes["10pz"] = tr("10 players (0 renegade)");
+    modes["11p"] = tr("11 players");
+    modes["12pd"] = tr("12 players");
+    modes["12p"] = tr("12 players (1 renegade)");
+    modes["12pz"] = tr("12 players (0 renegade)");
 
     foreach (const Skill *skill, skills.values()) {
         Skill *mutable_skill = const_cast<Skill *>(skill);
@@ -775,8 +785,16 @@ void Engine::setExtraGeneralsBan()
 
     if (ServerInfo.GameMode == "04_boss")
         ban_list.append(Config.value("Banlist/BossMode", "").toStringList());
+    else if (ServerInfo.GameMode == "04_year")
+        ban_list.append(Config.value("Banlist/YearBoss", "").toStringList());
+    else if (ServerInfo.GameMode == "05_zhfd")
+        ban_list.append(Config.value("Banlist/AttackDong", "").toStringList());
+    else if (ServerInfo.GameMode == "06_swzs")
+        ban_list.append(Config.value("Banlist/GodsReturn", "").toStringList());
     else if (ServerInfo.GameMode == "08_zdyj")
         ban_list.append(Config.value("Banlist/BestLoyalist", "").toStringList());
+    else if (ServerInfo.GameMode == "08_dragonboat")
+        ban_list.append(Config.value("Banlist/DragonBoat", "").toStringList());
     else if (ServerInfo.GameMode == "02_1v1")
         ban_list.append(Config.value("Banlist/1v1", "").toStringList());
     else if (Config.GameMode == "zombie_mode")
@@ -927,7 +945,7 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const
 #ifndef USE_BUILDBOT
 QString Engine::getVersionNumber() const
 {
-    return "20180721";
+    return "20190601";
 }
 #endif
 
@@ -1070,7 +1088,8 @@ QString Engine::getSetupString() const
         << QString::number(timeout)
         << QString::number(Config.NullificationCountDown)
         << Sanguosha->getBanPackages().join("+")
-        << flags;
+        << flags
+        << QString::number(Config.GeneralLevel);
 
     return setup_items.join(":");
 }
@@ -1090,6 +1109,14 @@ QString Engine::getModeName(const QString &mode) const
 
 int Engine::getPlayerCount(const QString &mode) const
 {
+    if (mode == "05_zhfd" && Config.value("zhfd/Mode", "NormalMode").toString() == "BossMode")
+        return 8;
+    if (mode == "04_year" && Config.value("year/Mode", "2018").toString() == "2018")
+        return 6;
+    if (mode == "04_year" && Config.value("year/Mode", "2018").toString() == "2019G")
+        return 8;
+    if (mode == "04_year" && Config.value("year/Mode", "2018").toString() == "2019Y")
+        return 6;
     if (modes.contains(mode) || isNormalGameMode(mode)) { // hidden pz settings?
         QRegExp rx("(\\d+)");
         int index = rx.indexIn(mode);
@@ -1111,12 +1138,31 @@ QString Engine::getRoles(const QString &mode) const
 
     if (mode == "02_1v1") {
         return "ZN";
+    } else if (mode == "03_1v2") {
+        return "ZFF";
     } else if (mode == "04_1v3" || mode == "04_boss") {
         return "ZFFF";
+    } else if (mode == "04_year") {
+        if (Config.value("year/Mode", "2018").toString() == "2018")
+            return "FCFCFC";
+        if (Config.value("year/Mode", "2018").toString() == "2019G")
+            return "FFCFCCFC";
+        if (Config.value("year/Mode", "2018").toString() == "2019Y")
+            return "CFFCFF";
+    } else if (mode == "05_zhfd") {
+        if (Config.value("zhfd/Mode", "NormalMode").toString() == "BossMode")
+            return "ZCFCFCFC";
+        return "CZCFF";
+    } else if (mode == "06_swzs") {
+        return "CZCFFF";
     } else if (mode == "08_defense") {
         return "FFFFCCCC";
     } else if (mode == "08_zdyj") {
         return "ZCCFFFFN";
+    } else if (mode == "08_hongyan") {
+        return "ZCCFFFFN";
+    } else if (mode == "08_dragonboat") {
+        return "EESSUUQQ";
     }
 
     if (modes.contains(mode) || isNormalGameMode(mode)) { // hidden pz settings?
@@ -1132,7 +1178,9 @@ QString Engine::getRoles(const QString &mode) const
             "ZCCFFFN", // 7
             "ZCCFFFFN", // 8
             "ZCCCFFFFN", // 9
-            "ZCCCFFFFFN" // 10
+            "ZCCCFFFFFN", // 10
+            "ZCCCCFFFFFN", // 11
+            "ZCCCCFFFFFFN", // 12
         };
 
         static const char *table2[] = {
@@ -1147,7 +1195,9 @@ QString Engine::getRoles(const QString &mode) const
             "ZCCFFFN", // 7
             "ZCCFFFNN", // 8
             "ZCCCFFFFN", // 9
-            "ZCCCFFFFNN" // 10
+            "ZCCCFFFFNN", // 10
+            "ZCCCFFFFFNN", // 11
+            "ZCCCCFFFFFNN", // 12
         };
 
         const char **table = mode.endsWith("d") ? table2 : table1;
@@ -1185,6 +1235,10 @@ QStringList Engine::getRoleList(const QString &mode) const
         case 'C': role = "loyalist"; break;
         case 'N': role = "renegade"; break;
         case 'F': role = "rebel"; break;
+        case 'E': role = "dragon_wei"; break;
+        case 'S': role = "dragon_shu"; break;
+        case 'U': role = "dragon_wu"; break;
+        case 'Q': role = "dragon_qun"; break;
         }
         role_list << role;
     }
@@ -1277,6 +1331,73 @@ QStringList Engine::getRandomLords() const
     return lords;
 }
 
+QStringList Engine::getRandomFemaleLords(bool luxun) const
+{
+    QStringList banlist_ban = getExtraGeneralsBan();
+
+    QStringList lords;
+
+    QStringList all_maf_lords = Sanguosha->getLords();
+    QStringList all_lords;
+    foreach (QString name, all_maf_lords)
+    {
+        const General *general = Sanguosha->getGeneral(name);
+        if (general && general->isFemale())
+            all_lords << general->objectName();
+        else if (general && name.contains("luxun") && luxun)
+            all_lords << name;
+    }
+
+    foreach (QString alord, all_lords) {
+        if (banlist_ban.contains(alord)) continue;
+        lords << alord;
+    }
+
+    int lord_num = Config.value("LordMaxChoice", -1).toInt();
+    if (lord_num != -1 && lord_num < lords.length()) {
+        int to_remove = lords.length() - lord_num;
+        for (int i = 0; i < to_remove; i++) {
+            lords.removeAt(qrand() % lords.length());
+        }
+    }
+
+    QStringList nonlord_list, all_nonlord_list;
+    foreach (QString nonlord, generals.keys()) {
+        if (isGeneralHidden(nonlord) || lord_list.contains(nonlord)) continue;
+        const General *general = generals.value(nonlord);
+        if (getBanPackages().contains(general->getPackage()))
+            continue;
+        if (Config.Enable2ndGeneral && BanPair::isBanned(general->objectName()))
+            continue;
+        if (banlist_ban.contains(general->objectName()))
+            continue;
+        //const General *general = Sanguosha->getGeneral(nonlord);
+        if (!general || !(general->isFemale() || (nonlord.contains("luxun") && luxun)))
+            continue;
+        QString main_name = getMainGeneral(nonlord);
+        all_nonlord_list << nonlord;
+        if (!nonlord_list.contains(main_name))
+            nonlord_list << main_name;
+    }
+
+    qShuffle(nonlord_list);
+
+    int extra = Config.value("NonLordMaxChoice", 2).toInt();
+    if (lord_num == 0 && extra == 0)
+        extra = 1;
+    for (int i = 0; i < extra; i++) {
+        QString name = nonlord_list.at(i);
+        if (all_nonlord_list.contains(name))
+            lords << name;
+        foreach (QString sp, getConvertGenerals(name)) {
+            if (all_nonlord_list.contains(sp))
+                lords << sp;
+        }
+        if (i == nonlord_list.length() - 1) break;
+    }
+    return lords;
+}
+
 QStringList Engine::getLimitedGeneralNames(const QString &kingdom) const
 {
     QStringList general_names;
@@ -1340,9 +1461,57 @@ QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set, c
     return general_list;
 }
 
+QStringList Engine::getRandomFemaleGenerals(int count, const QSet<QString> &ban_set, const QString &kingdom, bool luxun) const
+{
+    QStringList all_maf_generals = getLimitedGeneralNames(kingdom);
+    QStringList all_generals;
+    foreach (QString name, all_maf_generals)
+    {
+        const General *general = Sanguosha->getGeneral(name);
+        if (general && general->isFemale())
+            all_generals << general->objectName();
+        else if (general && name.contains("luxun") && luxun)
+            all_generals << name;
+    }
+
+    QSet<QString> general_set = all_generals.toSet();
+
+    QStringList banned_generals = getExtraGeneralsBan();
+    general_set.subtract(banned_generals.toSet());
+
+    all_generals = general_set.subtract(ban_set).toList();
+
+    if (count < 1) {
+        // shuffle them
+        qShuffle(all_generals);
+        return all_generals;
+    }
+
+    QStringList main_generals = getMainGenerals(all_generals);
+
+    Q_ASSERT(main_generals.count() >= count);
+
+    qShuffle(main_generals);
+
+    QStringList main_list = main_generals.mid(0, count);
+    Q_ASSERT(main_list.count() == count);
+
+    QStringList general_list;
+    foreach (QString name, main_list) {
+        if (all_generals.contains(name))
+            general_list << name;
+        foreach (QString sp, getConvertGenerals(name)) {
+            if (all_generals.contains(sp))
+                general_list << sp;
+        }
+    }
+    return general_list;
+}
+
 QList<int> Engine::getRandomCards() const
 {
-    bool exclude_disaters = false, using_2012_3v3 = false, using_2013_3v3 = false, exclude_zdyj = false;
+    bool exclude_disaters = false, using_2012_3v3 = false, using_2013_3v3 = false, exclude_zdyj = false,
+            exclude_dragonboat = false, exclude_swzs = false, exclude_year_18 = false, exclude_year_19 = false;
     QStringList extra_ban = QStringList();
 
     if (Config.GameMode == "06_3v3") {
@@ -1357,6 +1526,38 @@ QList<int> Engine::getRandomCards() const
     if (Config.GameMode == "08_zdyj") {
         exclude_zdyj = true;
         extra_ban << Config.BestLoyalistSets["cards_ban"];
+        if (Config.value("zdyj/Rule", "2017").toString() != "2017")
+            extra_ban << Config.BestLoyalistSets["cards_ban_old"];
+        else
+            extra_ban << Config.BestLoyalistSets["cards_ban_new"];
+    }
+
+    if (Config.GameMode == "08_dragonboat")
+    {
+        exclude_dragonboat = true;
+        exclude_disaters = true;
+        extra_ban << Config.DragonBoatBanC["cards"];
+    }
+
+    if (Config.GameMode == "04_year")
+    {
+        if (Config.value("year/Mode", "2018").toString() == "2018")
+        {
+            exclude_year_18 = true;
+            exclude_disaters = false;
+            extra_ban << Config.YearBossBanC["cards"];
+        }
+        if (Config.value("year/Mode", "2018").toString().contains("2019"))
+        {
+            exclude_year_19 = true;
+            exclude_disaters = false;
+        }
+    }
+
+    if (Config.GameMode == "06_swzs")
+    {
+        exclude_swzs = true;
+        extra_ban << Config.GodsReturnBanC["cards"];
     }
 
     QList<int> list;
@@ -1384,6 +1585,14 @@ QList<int> Engine::getRandomCards() const
         else if (card->getPackage() == "New3v3_2013Card" && using_2013_3v3)
             list << card->getId();
         else if (card->getPackage() == "BestLoyalistCard" && exclude_zdyj)
+            list << card->getId();
+        else if (card->getPackage() == "DragonBoatCard" && exclude_dragonboat)
+            list << card->getId();
+        else if (card->getPackage() == "YearBoss2018Card" && exclude_year_18)
+            list << card->getId();
+        else if (card->getPackage() == "YearBoss2019Card" && exclude_year_19)
+            list << card->getId();
+        else if (card->getPackage() == "GodsReturnCard" && exclude_swzs)
             list << card->getId();
 
         if (Config.GameMode == "02_1v1" && !Config.value("1v1/UsingCardExtension", false).toBool()) {

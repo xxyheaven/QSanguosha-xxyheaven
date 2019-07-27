@@ -364,6 +364,23 @@ bool VSCrossbow::match(const QString &pattern) const
         return Crossbow::match(pattern);
 }
 
+class VSCrossbowSkill : public TargetModSkill
+{
+public:
+    VSCrossbowSkill() : TargetModSkill("vscrossbow")
+    {
+    }
+
+    virtual int getResidueNum(const Player *from, const Card *slash, const Player *) const
+    {
+        if (from->hasWeapon(objectName()) && !slash->usecontains(from->getWeapon())
+                && !from->hasFlag("Global_CrossbowCheaking"))
+            return 3;
+        else
+            return 0;
+    }
+};
+
 New3v3CardPackage::New3v3CardPackage()
     : Package("New3v3Card")
 {
@@ -389,6 +406,8 @@ New3v3_2013CardPackage::New3v3_2013CardPackage()
 
     foreach(Card *card, cards)
         card->setParent(this);
+
+    skills << new VSCrossbowSkill;
 
     type = CardPack;
 }

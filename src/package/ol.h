@@ -115,27 +115,6 @@ public:
     const Card *validate(CardUseStruct &card_use) const;
 };
 
-class QianyaCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE QianyaCard();
-
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class CanshiiCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE CanshiiCard();
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
-};
-
 class JianjieCard : public SkillCard
 {
     Q_OBJECT

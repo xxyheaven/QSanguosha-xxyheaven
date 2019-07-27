@@ -8,6 +8,7 @@
 #include <QMutex>
 #include <QSize>
 #include "skin-bank.h"
+#include "sprite.h"
 
 class FilterSkill;
 class General;
@@ -123,6 +124,9 @@ public:
     void setOuterGlowColor(const QColor &color);
     QColor getOuterGlowColor() const;
 
+    bool setEmotion(const QString &emotion, bool permanent = false);
+    void hideEmotion();
+
 private slots:
     void currentAnimationDestroyed();
 
@@ -140,6 +144,7 @@ protected:
     bool _m_isUnknownGeneral;
     int _skinId;
     bool auto_back, frozen;
+    Sprite *emotion_item;
     static const int _S_CLICK_JITTER_TOLERANCE;
     static const int _S_MOVE_JITTER_TOLERANCE;
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);

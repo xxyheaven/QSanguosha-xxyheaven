@@ -28,7 +28,7 @@ Dashboard::Dashboard(QGraphicsPixmapItem *widget)
     _dlayout = &G_DASHBOARD_LAYOUT;
     _m_layout = _dlayout;
     m_player = Self;
-    _m_leftFrame = _m_rightFrame = _m_middleFrame = NULL;
+    _m_leftFrame = _m_rightFrame = _m_middleFrame = _m_flowerFrame = _m_treeFrame = NULL;
     //_m_rightFrameBg = NULL;
     animations = new EffectAnimation();
     pending_card = NULL;
@@ -121,6 +121,15 @@ void Dashboard::_createMiddle()
     _m_middleFrame->setTransformationMode(Qt::SmoothTransformation);
 
     _m_middleFrame->setZValue(-1000); // nobody should be under me.
+
+    _m_flowerFrame = new QGraphicsPixmapItem(_m_groupMain);
+    _m_flowerFrame->setTransformationMode(Qt::SmoothTransformation);
+    _m_flowerFrame->setZValue(-1000);
+
+    _m_treeFrame = new QGraphicsPixmapItem(_m_groupMain);
+    _m_treeFrame->setTransformationMode(Qt::SmoothTransformation);
+    _m_treeFrame->setZValue(-1001);
+
     button_widget->setParentItem(_m_middleFrame);
 
     trusting_item = new QGraphicsPathItem(this);
@@ -145,10 +154,24 @@ void Dashboard::_adjustComponentZValues(bool killed)
     // make sure right frame is on top because we have a lot of stuffs
     // attached to it, such as the rolecomboBox, which should not be under
     // middle frame
-    _layUnder(_m_rightFrame);
-    _layUnder(_m_leftFrame);
-    _layUnder(_m_middleFrame);
-    _layBetween(button_widget, _m_middleFrame, _m_roleComboBox);
+    if (!Config.value("UseOldButtons", false).toBool())
+    {
+        _layUnder(_m_rightFrame);
+        _layUnder(_m_leftFrame);
+        _layUnder(_m_flowerFrame);
+        _layUnder(_m_middleFrame);
+        _layBetween(button_widget, _m_middleFrame, _m_roleComboBox);
+        _layUnder(_m_treeFrame);
+        _layUnder(_m_middleFrame);
+    }
+    else
+    {
+        _layUnder(_m_rightFrame);
+        _layUnder(_m_leftFrame);
+        _layUnder(_m_flowerFrame);
+        _layUnder(_m_middleFrame);
+        _layBetween(button_widget, _m_middleFrame, _m_roleComboBox);
+    }
     //_layBetween(_m_rightFrameBg, _m_faceTurnedIcon, _m_equipRegions[4]);
 }
 
@@ -159,9 +182,14 @@ int Dashboard::width()
 
 void Dashboard::repaintAll()
 {
-    button_widget->setPixmap(G_ROOM_SKIN.getPixmap
-                             (QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG)
+    if (!Config.value("UseOldButtons", false).toBool())
+        button_widget->setPixmap(G_ROOM_SKIN.getPixmap
+                             (QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_BUTTOM)
                              .scaled(G_DASHBOARD_LAYOUT.m_buttonSetSize));
+    else
+        button_widget->setPixmap(G_ROOM_SKIN.getPixmap
+                             (QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_BUTTOM_OLD)
+                             .scaled(G_DASHBOARD_LAYOUT.m_buttonSetSizeOld));
     RoomSceneInstance->redrawDashboardButtons();
 
     _paintLeftFrame();
@@ -203,6 +231,19 @@ void Dashboard::_updateFrames()
                        this->width() - G_DASHBOARD_LAYOUT.m_rightWidth - G_DASHBOARD_LAYOUT.m_leftWidth, G_DASHBOARD_LAYOUT.m_normalHeight);
 
     _paintMiddleFrame(rect);
+
+    const int fwidth = 1000, fheight = 149;
+    QRect frect = QRect(G_DASHBOARD_LAYOUT.m_leftWidth + rect.width() / 2 - fwidth / 2, rect.height() - fheight, fwidth, fheight);
+    if (Config.GeneralLevel > 4)
+        _paintPixmap(_m_flowerFrame, frect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_FLOWERFRAME), _m_groupMain);
+
+    const int treewidth = 106, treeheight = 168;
+    QRect treerect = QRect(G_DASHBOARD_LAYOUT.m_leftWidth + rect.width() - treewidth, 1, treewidth, treeheight);
+    if (!Config.value("UseOldButtons", false).toBool())
+        _paintPixmap(_m_treeFrame, treerect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG[Config.GeneralLevel]), _m_groupMain);
+    else
+        _paintPixmap(_m_treeFrame, treerect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG_OLD[Config.GeneralLevel]), _m_groupMain);
+
     _m_groupDeath->setPos(rect.x(), rect.y());
     _m_groupDeath->setPixmap(QPixmap(rect.size()));
 
@@ -212,12 +253,26 @@ void Dashboard::_updateFrames()
                           (rect2.height() - Config.BigFont.pixelSize()) / 2);
 
     Q_ASSERT(button_widget);
-    button_widget->setX(rect.width() - getButtonWidgetWidth());
-    button_widget->setY(1);
+    if (!Config.value("UseOldButtons", false).toBool())
+    {
+        const double btnLoc = 0.58328327703595;
+        double btnMove = btnLoc * double(this->width());
+        button_widget->setX(rect.width() - btnMove);
+        button_widget->setY(-24);
 
-    QRectF btnWidgetRect = button_widget->mapRectToItem(this, button_widget->boundingRect());
-    m_btnNoNullification->setPos(btnWidgetRect.left() - m_btnNoNullification->boundingRect().width(),
-                                 m_btnNoNullification->boundingRect().height() / 5);
+        QRectF btnWidgetRect = button_widget->mapRectToItem(this, button_widget->boundingRect());
+        m_btnNoNullification->setPos(btnWidgetRect.x() + btnWidgetRect.width() + 75,
+                                     btnWidgetRect.y() - m_btnNoNullification->boundingRect().height());
+    }
+    else
+    {
+        button_widget->setX(rect.width() - getButtonWidgetWidth());
+        button_widget->setY(1);
+
+        QRectF btnWidgetRect = button_widget->mapRectToItem(this, button_widget->boundingRect());
+        m_btnNoNullification->setPos(btnWidgetRect.left() - m_btnNoNullification->boundingRect().width(),
+                                     btnWidgetRect.y() - m_btnNoNullification->boundingRect().height());
+    }
 
     _paintRightFrame();
     _m_rightFrame->setX(_m_width - G_DASHBOARD_LAYOUT.m_rightWidth);
@@ -250,17 +305,17 @@ void Dashboard::_updateFrames()
 void Dashboard::_paintLeftFrame()
 {
     QRect rect = QRect(0, 0, G_DASHBOARD_LAYOUT.m_leftWidth, G_DASHBOARD_LAYOUT.m_normalHeight);
-    _paintPixmap(_m_leftFrame, rect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_LEFTFRAME), _m_groupMain);
+    _paintPixmap(_m_leftFrame, rect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_LEFTFRAME[Config.GeneralLevel]), _m_groupMain);
 }
 
 void Dashboard::_paintMiddleFrame(const QRect &rect)
 {
-    _paintPixmap(_m_middleFrame, rect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_MIDDLEFRAME), _m_groupMain);
+    _paintPixmap(_m_middleFrame, rect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_MIDDLEFRAME[Config.GeneralLevel]), _m_groupMain);
 }
 
 void Dashboard::_paintRightFrame()
 {
-    QPixmap rightFramePixmap = _getPixmap(QSanRoomSkin::S_SKIN_KEY_RIGHTFRAME);
+    QPixmap rightFramePixmap = _getPixmap(QSanRoomSkin::S_SKIN_KEY_RIGHTFRAME[Config.GeneralLevel]);
     int middleFrameHeight = G_DASHBOARD_LAYOUT.m_normalHeight;
     int rightFrameHeight = rightFramePixmap.height();
     m_middleFrameAndRightFrameHeightDiff = middleFrameHeight - rightFrameHeight;
@@ -610,6 +665,16 @@ void Dashboard::highlightEquip(QString skillName, bool highlight)
         _setEquipBorderAnimation(i, highlight);
 }
 
+void Dashboard::clearHighlightEquip()
+{
+    for (int i = 0; i < S_EQUIP_AREA_LENGTH; i++)
+        if (!_m_equipCards[i])
+        {
+            _m_equipBorders[i]->hide();
+            _m_equipBorders[i]->stop();
+        }
+}
+
 void Dashboard::_createExtraButtons()
 {
     m_trustButton = new QSanButton("handcard", "trust", this, true);
@@ -649,7 +714,7 @@ void Dashboard::showSeat()
         pma->setPos(region.x() + region.width() / 2, region.y() + region.height() / 2);
     }
     _paintPixmap(_m_seatItem, region,
-        _getPixmap(QSanRoomSkin::S_SKIN_KEY_SEAT_NUMBER, QString::number(m_player->getSeat())),
+        _getPixmap(QSanRoomSkin::S_SKIN_KEY_SEAT_NUMBER, QString::number(m_player->getRealSeat())),
         _m_rightFrame);
     //save the seat number for later use
     m_player->setProperty("UI_Seat", m_player->getSeat());
@@ -1022,7 +1087,7 @@ void Dashboard::updateAvatar()
         m_deputyHeroSkinContainer->hide();
     _m_screenNameItem->hide();
 
-    QPixmap rightFramePixmap = _getPixmap(QSanRoomSkin::S_SKIN_KEY_RIGHTFRAME);
+    QPixmap rightFramePixmap = _getPixmap(QSanRoomSkin::S_SKIN_KEY_RIGHTFRAME[Config.GeneralLevel]);
     int rightFrameWidth = G_DASHBOARD_LAYOUT.m_rightWidth;
     int rightFrameHeight = rightFramePixmap.height();
     _paintPixmap(_m_backgroundFrame, QRect(0, 0, rightFrameWidth, rightFrameHeight), rightFramePixmap, _m_rightFrame);
@@ -1209,10 +1274,11 @@ void Dashboard::expandGuhuoCards(const QString &guhuo_type)
 {
     if (!_m_guhuo_expanded.isEmpty()) return;
     QStringList card_list;
+    QList<int> modecard = Sanguosha->getRandomCards();
     if (guhuo_type.contains("b")) {
         QList<const BasicCard*> basics = Sanguosha->findChildren<const BasicCard*>();
         foreach (const BasicCard *card, basics) {
-            if (!card_list.contains(card->objectName()) && !ServerInfo.Extensions.contains("!" + card->getPackage())
+            if (!card_list.contains(card->objectName()) && modecard.contains(card->getId())
                 && !(guhuo_type.contains("s") && card_list.contains("slash") && card->objectName().contains("slash")))
                 card_list.append(card->objectName());
         }
@@ -1220,7 +1286,7 @@ void Dashboard::expandGuhuoCards(const QString &guhuo_type)
     if (guhuo_type.contains("t")) {
         QList<const TrickCard*> tricks = Sanguosha->findChildren<const TrickCard*>();
         foreach (const TrickCard *card, tricks) {
-            if (!ServerInfo.Extensions.contains("!" + card->getPackage()) && card->isNDTrick()
+            if (modecard.contains(card->getId()) && card->isNDTrick()
                 && !card_list.contains(card->objectName()))
                     card_list.append(card->objectName());
         }
@@ -1228,8 +1294,7 @@ void Dashboard::expandGuhuoCards(const QString &guhuo_type)
     if (guhuo_type.contains("d")) {
         QList<const DelayedTrick*> delays = Sanguosha->findChildren<const DelayedTrick*>();
         foreach (const DelayedTrick *card, delays) {
-            if (!card_list.contains(card->objectName())
-                && !ServerInfo.Extensions.contains("!" + card->getPackage()))
+            if (!card_list.contains(card->objectName()) && modecard.contains(card->getId()))
                 card_list.append(card->objectName());
         }
     }

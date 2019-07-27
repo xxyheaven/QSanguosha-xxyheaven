@@ -420,6 +420,8 @@ SupplyShortage::SupplyShortage(Card::Suit suit, int number)
     judge.pattern = ".|club";
     judge.good = true;
     judge.reason = objectName();
+
+    turn_skills << "yearyangshou" << "yearyinshou" << "yearxiongshou";
 }
 
 bool SupplyShortage::targetRated(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
@@ -440,7 +442,8 @@ bool SupplyShortage::targetRated(const QList<const Player *> &targets, const Pla
 
 void SupplyShortage::takeEffect(ServerPlayer *target) const
 {
-	target->broadcastSkillInvoke("@supply_shortage");
+    target->broadcastSkillInvoke(QString("@%1").arg(objectName()));
+    target->getRoom()->setEmotion(target, QString("@%1").arg(objectName()));
     target->skip(Player::Draw);
 }
 

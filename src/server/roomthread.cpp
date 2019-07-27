@@ -254,6 +254,18 @@ void CardUseStruct::parse(const QString &str, Room *room)
     }
 }
 
+MarkStruct::MarkStruct()
+    : who(NULL), name(QString()), count(NULL), gain(NULL)
+{
+
+}
+
+TurnStruct::TurnStruct()
+    : who(NULL), name(QString())
+{
+
+}
+
 QString EventTriplet::toString() const
 {
     return QString("event[%1], room[%2], target = %3[%4]\n")
@@ -296,7 +308,7 @@ ServerPlayer *RoomThread::find3v3Next(QList<ServerPlayer *> &first, QList<Server
 {
     bool all_actioned = true;
     foreach (ServerPlayer *player, room->m_alivePlayers) {
-        if (!player->hasFlag("actioned")) {
+        if (!player->getMark("actionedM")) {
             all_actioned = false;
             break;
         }
@@ -305,6 +317,7 @@ ServerPlayer *RoomThread::find3v3Next(QList<ServerPlayer *> &first, QList<Server
     if (all_actioned) {
         foreach (ServerPlayer *player, room->m_alivePlayers) {
             room->setPlayerFlag(player, "-actioned");
+            room->setPlayerMark(player, "actionedM", 0);
             trigger(ActionedReset, room, player);
         }
 
@@ -324,7 +337,7 @@ ServerPlayer *RoomThread::find3v3Next(QList<ServerPlayer *> &first, QList<Server
             another = first.at(1);
         else
             another = first.last();
-        if (!another->hasFlag("actioned") && another->isAlive())
+        if (!another->getMark("actionedM") && another->isAlive())
             return another;
     }
 
@@ -333,7 +346,7 @@ ServerPlayer *RoomThread::find3v3Next(QList<ServerPlayer *> &first, QList<Server
         targets.clear();
         qSwap(first, second);
         foreach (ServerPlayer *player, first) {
-            if (!player->hasFlag("actioned") && player->isAlive())
+            if (!player->getMark("actionedM") && player->isAlive())
                 targets << player;
         }
     } while (targets.isEmpty());
@@ -348,6 +361,7 @@ void RoomThread::run3v3(QList<ServerPlayer *> &first, QList<ServerPlayer *> &sec
             room->setCurrent(current);
             trigger(TurnStart, room, room->getCurrent());
             room->setPlayerFlag(current, "actioned");
+            room->setPlayerMark(current, "actionedM", 1);
             current = find3v3Next(first, second);
         }
     }
@@ -371,6 +385,8 @@ void RoomThread::_handleTurnBroken3v3(QList<ServerPlayer *> &first, QList<Server
         }
         if (!player->hasFlag("actioned"))
             room->setPlayerFlag(player, "actioned");
+        if (!player->getMark("actionedM"))
+            room->setPlayerMark(player, "actionedM", 1);
 
         ServerPlayer *next = find3v3Next(first, second);
         run3v3(first, second, game_rule, next);
@@ -390,7 +406,7 @@ ServerPlayer *RoomThread::findHulaoPassNext(ServerPlayer *shenlvbu, QList<Server
     if (stage == 1) {
         if (current == shenlvbu) {
             foreach (ServerPlayer *p, league) {
-                if (p->isAlive() && !p->hasFlag("actioned"))
+                if (p->isAlive() && !p->getMark("actionedM"))
                     return p;
             }
             foreach (ServerPlayer *p, league) {
@@ -420,10 +436,12 @@ void RoomThread::actionHulaoPass(ServerPlayer *shenlvbu, QList<ServerPlayer *> l
                 if (current != shenlvbu) {
                     if (current->isAlive() && !current->hasFlag("actioned"))
                         room->setPlayerFlag(current, "actioned");
+                    if (current->isAlive() && !current->getMark("actionedM"))
+                        room->setPlayerMark(current, "actionedM", 1);
                 } else {
                     bool all_actioned = true;
                     foreach (ServerPlayer *player, league) {
-                        if (player->isAlive() && !player->hasFlag("actioned")) {
+                        if (player->isAlive() && !player->getMark("actionedM")) {
                             all_actioned = false;
                             break;
                         }
@@ -432,6 +450,8 @@ void RoomThread::actionHulaoPass(ServerPlayer *shenlvbu, QList<ServerPlayer *> l
                         foreach (ServerPlayer *player, league) {
                             if (player->hasFlag("actioned"))
                                 room->setPlayerFlag(player, "-actioned");
+                            if (player->getMark("actionedM"))
+                                room->setPlayerMark(player, "actionedM", 0);
                         }
                         foreach (ServerPlayer *player, league) {
                             if (player->isDead()) {
@@ -451,6 +471,7 @@ void RoomThread::actionHulaoPass(ServerPlayer *shenlvbu, QList<ServerPlayer *> l
                                     room->setPlayerProperty(player, "hp", qMin(player->getMaxHp(), 3));
                                     player->drawCards(3, "revive");
                                     room->setPlayerFlag(player, "actioned");
+                                    room->setPlayerMark(player, "actionedM", 1);
                                 } else
                                     room->setTag(tag_name, x+1);
                             }
@@ -487,6 +508,7 @@ void RoomThread::actionHulaoPass(ServerPlayer *shenlvbu, QList<ServerPlayer *> l
                                 room->setPlayerProperty(player, "hp", qMin(player->getMaxHp(), 3));
                                 player->drawCards(3, "revive");
                                 room->setPlayerFlag(player, "actioned");
+                                room->setPlayerMark(player, "actionedM", 1);
                             } else
                                 room->setTag(tag_name, x+1);
                         }
@@ -504,6 +526,8 @@ void RoomThread::actionHulaoPass(ServerPlayer *shenlvbu, QList<ServerPlayer *> l
                 if (player != shenlvbu) {
                     if (player->hasFlag("actioned"))
                         room->setPlayerFlag(player, "-actioned");
+                    if (player->getMark("actionedM"))
+                        room->setPlayerMark(player, "actionedM", 0);
 
                     if (player->getPhase() != Player::NotActive) {
                         QVariant v;
@@ -534,7 +558,10 @@ void RoomThread::_handleTurnBrokenHulaoPass(ServerPlayer *shenlvbu, QList<Server
             game_rule->trigger(EventPhaseEnd, room, player, v);
             player->changePhase(player->getPhase(), Player::NotActive);
             if (player != shenlvbu && stage == 1)
+            {
                 room->setPlayerFlag(player, "actioned");
+                room->setPlayerMark(player, "actionedM", 1);
+            }
         }
 
         room->setCurrent(next);
@@ -555,13 +582,15 @@ void RoomThread::actionNormal(GameRule *game_rule)
             LogMessage log;
             log.type = "$AppendSeparator";
             room->sendLog(log);
-			if (room->getCurrent()->getSeat() == 1){
+            if (!room->getTag("RoundStart").isNull() && room->getTag("RoundStart").value<ServerPlayer *>() &&
+                    room->getCurrent() == room->getTag("RoundStart").value<ServerPlayer *>()){
                 room->incTurn();
                 QVariant data = room->getTurn();
-				foreach(ServerPlayer *p, room->getAllPlayers())
+                foreach(ServerPlayer *p, room->getAllPlayers())
                     trigger(RoundStart, room, p, data);
                 room->setTag("TurnFirstRound", true);
-			}
+                room->removeTag("RoundStart");
+            }
 			trigger(TurnStart, room, room->getCurrent());
             if (room->isFinished()) break;
 			ServerPlayer *last_player = room->getCurrent();
@@ -574,6 +603,7 @@ void RoomThread::actionNormal(GameRule *game_rule)
 					if (next){
 						room->setTag("ExtraTurn", true);
 						room->setCurrent(next);
+                        room->setNormalCurrent(last_player);
 						LogMessage log;
                         log.type = "$AppendSeparator";
                         room->sendLog(log);
@@ -585,7 +615,10 @@ void RoomThread::actionNormal(GameRule *game_rule)
                     room->removeTag("ExtraTurnList");
             }
             if (room->isFinished()) break;
-            room->setCurrent(last_player->getNextAlive());
+            ServerPlayer *nextp = last_player->getNextAlive();
+            if (last_player->getRealSeat() > nextp->getRealSeat())
+                room->setTag("RoundStart", QVariant::fromValue(nextp));
+            room->setCurrent(nextp);
         }
     }
     catch (TriggerEvent triggerEvent) {
@@ -599,17 +632,49 @@ void RoomThread::actionNormal(GameRule *game_rule)
 void RoomThread::_handleTurnBrokenNormal(GameRule *game_rule)
 {
     try {
-        ServerPlayer *player = room->getCurrent();
+        ServerPlayer *player = room->getCurrent(), *nplayer = room->getNormalCurrent();
         trigger(TurnBroken, room, player);
-        ServerPlayer *next = player->getNextAlive();
+        ServerPlayer *next = nplayer->getNextAlive();
         if (player->getPhase() != Player::NotActive) {
             QVariant data = QVariant();
             game_rule->trigger(EventPhaseEnd, room, player, data);
             player->changePhase(player->getPhase(), Player::NotActive);
         }
 
-        room->setCurrent(next);
-        actionNormal(game_rule);
+        while (!room->getTag("ExtraTurnList").isNull()) {
+            QStringList extraTurnList = room->getTag("ExtraTurnList").toStringList();
+            if (!extraTurnList.isEmpty()) {
+                QString extraTurnPlayer = extraTurnList.takeFirst();
+                room->setTag("ExtraTurnList", QVariant::fromValue(extraTurnList));
+                ServerPlayer *next = room->findPlayer(extraTurnPlayer);
+                if (next){
+                    room->setTag("ExtraTurn", true);
+                    room->setCurrent(next);
+                    room->setNormalCurrent(nplayer);
+                    LogMessage log;
+                    log.type = "$AppendSeparator";
+                    room->sendLog(log);
+                    trigger(TurnStart, room, next);
+                    room->removeTag("ExtraTurn");
+                }
+                if (room->isFinished()) break;
+            } else
+                room->removeTag("ExtraTurnList");
+        }
+
+        if (!room->getTag("break&NewTurn").isNull() && room->getTag("break&NewTurn").toBool())
+        {
+            room->setTag("RoundStart", QVariant::fromValue(nplayer));
+            room->removeTag("break&NewTurn");
+            actionNormal(game_rule);
+        }
+        else
+        {
+            if (nplayer->getRealSeat() > next->getRealSeat())
+                room->setTag("RoundStart", QVariant::fromValue(next));
+            room->setCurrent(next);
+            actionNormal(game_rule);
+        }
     }
     catch (TriggerEvent triggerEvent) {
         if (triggerEvent == TurnBroken)
@@ -684,6 +749,7 @@ void RoomThread::run()
                 room->setCurrent(first);
             }
 
+            room->setTag("RoundStart", QVariant::fromValue(room->getCurrent()));
             actionNormal(game_rule);
         }
     }
@@ -696,6 +762,7 @@ void RoomThread::run()
             if (first->getRole() != "renegade")
                 first = room->getPlayers().at(1);
             room->setCurrent(first);
+            room->setTag("RoundStart", QVariant::fromValue(first));
             actionNormal(game_rule);
         } else {
             Q_ASSERT(false);

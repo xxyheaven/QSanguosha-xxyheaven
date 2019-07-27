@@ -300,6 +300,8 @@ private:
 
     ChooseOptionsBox *m_chooseOptionsBox;
 
+    QGraphicsPixmapItem *m_fullemotion;
+
     PlayerCardBox *m_playerCardBox;
 
     QList<CardItem *> gongxin_items;
@@ -427,6 +429,7 @@ private slots:
     void acquireSkill(const ClientPlayer *player, const QString &skill_name);
     void updateSelectedTargets();
     void onSkillActivated();
+    void onSkillDialogActivated();
     void onSkillDeactivated();
     void doTimeout();
     void startInXs();
@@ -435,6 +438,8 @@ private slots:
     void changeMaxHp(const QString &who, int delta);
     void moveFocus(const QStringList &who, QSanProtocol::Countdown);
     void setEmotion(const QString &who, const QString &emotion);
+    void setFullEmotion(const QString &emotion, const int &dx, const int &dy);
+    void playRoomAudio(const QString &path, bool superpose = true);
     void showSkillInvocation(const QString &who, const QString &skill_name);
     void doAnimation(int name, const QStringList &args);
     void showOwnerButtons(bool owner);

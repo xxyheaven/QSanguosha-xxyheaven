@@ -558,14 +558,14 @@ class ShanjiaSlash : public ZeroCardViewAsSkill
 public:
     ShanjiaSlash() : ZeroCardViewAsSkill("shanjia_slash")
     {
-        response_pattern = "@@shanjia_slash!";
+        response_pattern = "@@shanjia_slash";
     }
 
     const Card *viewAs() const
     {
         Slash *slash = new Slash(Card::NoSuit, 0);
         slash->setSkillName("_shanjia");
-        slash->setFlags("Global_NoDistanceChecking");
+        //slash->setFlags("Global_NoDistanceChecking");
         return slash;
     }
 };
@@ -580,12 +580,12 @@ public:
 
     bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
     {
-        return selected.length() < Self->getMark("shanjia_disnum") && !Self->isJilei(to_select);
+        return selected.length() < 3 - qMin(3, Self->getMark("GlobalLostEquipcard")) && !Self->isJilei(to_select);
     }
 
     const Card *viewAs(const QList<const Card *> &cards) const
     {
-        if (cards.length() == Self->getMark("shanjia_disnum")) {
+        if (cards.length() == 3 - qMin(3, Self->getMark("GlobalLostEquipcard"))) {
             DummyCard *xt = new DummyCard;
             xt->addSubcards(cards);
             return xt;
@@ -605,55 +605,41 @@ public:
     {
         if (!PhaseChangeSkill::triggerable(player)) return QStringList();
         if (player->getPhase() != Player::Play) return QStringList();
-        if (player->getCardUsedTimes("EquipCard|all") > 0)
-            return QStringList(objectName());
-
-        return QStringList();
+        return QStringList(objectName());
     }
 
     virtual bool onPhaseChange(ServerPlayer *caochun) const
     {
         Room *room = caochun->getRoom();
-        int n = qMin(caochun->getCardUsedTimes("EquipCard|all"), 7);
-		if (n > 0 && caochun->askForSkillInvoke(this)){
+        if (caochun->askForSkillInvoke(this)){
             caochun->broadcastSkillInvoke(objectName());
-			caochun->drawCards(n);
-            QList<int> all_cards = caochun->forceToDiscard(10086, true);
-            QList<int> to_discard = caochun->forceToDiscard(n, true);
-			if (all_cards.length() > n){
-                room->setPlayerMark(caochun, "shanjia_disnum", n);
-				const Card *card = room->askForCard(caochun, "@@shanjia_discard!", "@shanjia-discard:::" + QString::number(n), QVariant(), Card::MethodNone);
-                room->setPlayerMark(caochun, "shanjia_disnum", 0);
-				if (card != NULL && card->subcardsLength() == n) {
-					to_discard = card->getSubcards();
-				}
-			}
-			bool selected_equipped = false;
-			foreach (int card_id, to_discard) {
-			    if (room->getCardPlace(card_id) == Player::PlaceEquip) {
-					selected_equipped = true;
-				}
-			}
-			DummyCard *dummy_card = new DummyCard(to_discard);
-            CardMoveReason mreason(CardMoveReason::S_REASON_THROW, caochun->objectName(), QString(), objectName(), QString());
-            room->throwCard(dummy_card, mreason, caochun);
-			delete dummy_card;
-			if (selected_equipped && Slash::IsAvailable(caochun)){
-				ServerPlayer *slash_target = NULL;
-                foreach (ServerPlayer *p, room->getAlivePlayers()) {
-                    if (caochun->canSlash(p, NULL, false)) {
-						slash_target = p;
-						break;
-					}
+            caochun->drawCards(3, objectName());
+
+            int n = 3 - qMin(3, caochun->getMark("GlobalLostEquipcard"));
+
+            bool use_slash = true;
+
+            if (n > 0) {
+                QList<int> all_cards = caochun->forceToDiscard(10086, true);
+                QList<int> to_discard = caochun->forceToDiscard(n, true);
+                if (all_cards.length() > n){
+                    const Card *card = room->askForCard(caochun, "@@shanjia_discard!", "@shanjia-discard:::" + QString::number(n),
+                                                        QVariant(), Card::MethodNone);
+                    if (card != NULL && card->subcardsLength() == n)
+                        to_discard = card->getSubcards();
                 }
-                if (slash_target == NULL) return false;
-                const Card *use = room->askForUseCard(caochun, "@@shanjia_slash!", "@shanjia-slash", QVariant(), Card::MethodUse, false);
-				if (!use){
-					Slash *slash = new Slash(Card::NoSuit, 0);
-					slash->setSkillName("_shanjia");
-                    room->useCard(CardUseStruct(slash, caochun, slash_target), false);
-				}
-			}
+                foreach (int card_id, to_discard) {
+                    if (Sanguosha->getCard(card_id)->getTypeId() != Card::TypeEquip) {
+                        use_slash = false;
+                    }
+                }
+                DummyCard *dummy_card = new DummyCard(to_discard);
+                CardMoveReason mreason(CardMoveReason::S_REASON_THROW, caochun->objectName(), QString(), objectName(), QString());
+                room->throwCard(dummy_card, mreason, caochun);
+                delete dummy_card;
+            }
+            if (use_slash && Slash::IsAvailable(caochun))
+                room->askForUseCard(caochun, "@@shanjia_slash", "@shanjia-slash", QVariant(), Card::MethodUse, false);
 		}
 		return false;
     }
@@ -1341,6 +1327,72 @@ public:
     }
 };
 
+class Feiyang : public TriggerSkill
+{
+public:
+    Feiyang() : TriggerSkill("feiyang")
+    {
+        events << EventPhaseStart;
+        frequency = Frequent;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target, Room *room) const
+    {
+        return target && target->hasSkill(objectName()) && !target->getJudgingArea().isEmpty() &&
+                target->getHandcardNum() > 1 && target->getPhase() == Player::Judge && !target->hasFlag("FeiyangUsed");
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (room->askForDiscard(player, objectName(), 2, 2, true))
+        {
+            player->broadcastSkillInvoke(objectName());
+            room->notifySkillInvoked(player, objectName());
+            int card_id = room->askForCardChosen(player, player, "j", objectName());
+            room->throwCard(card_id, player, player);
+            room->setPlayerFlag(player, "FeiyangUsed");
+        }
+    }
+};
+
+class Bahu : public TriggerSkill
+{
+public:
+    Bahu() : TriggerSkill("bahu")
+    {
+        events << EventPhaseStart;
+        frequency = Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target, Room *room) const
+    {
+        return target && target->hasSkill(objectName()) && target->getPhase() == Player::Start;
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        player->broadcastSkillInvoke(objectName());
+        room->sendCompulsoryTriggerLog(player, objectName());
+        room->drawCards(player, 1, objectName());
+    }
+};
+
+class BahuTargetMod : public TargetModSkill
+{
+public:
+    BahuTargetMod() : TargetModSkill("#bahu-target")
+    {
+
+    }
+
+    virtual int getResidueNum(const Player *from, const Card *card, const Player *to) const
+    {
+        if (from->hasSkill("bahu"))
+            return 1;
+        else
+            return 0;
+    }
+};
 
 MOLPackage::MOLPackage()
 : Package("MOL")
@@ -1408,6 +1460,8 @@ MOLPackage::MOLPackage()
     addMetaObject<PingcaiMoveCard>();
 	
     skills << new ShanjiaDiscard << new ShanjiaSlash << new ChoulveUse << new ChoulveRecord << new PingcaiMove;
+
+    skills << new Feiyang << new Bahu << new BahuTargetMod;
 }
 
 ADD_PACKAGE(MOL)

@@ -7,7 +7,7 @@
 
 Player::Player(QObject *parent)
     : QObject(parent), owner(false), general(NULL), general2(NULL), headSkinId(0), deputySkinId(0),
-    m_gender(General::Sexless), hp(-1), max_hp(-1), state("online"), seat(0), alive(true),
+    m_gender(General::Sexless), hp(-1), max_hp(-1), state("online"), seat(0), rseat(0), alive(true),
     phase(NotActive),
     weapon(NULL), armor(NULL), defensive_horse(NULL), offensive_horse(NULL), treasure(NULL),
     face_up(true), chained(false),
@@ -119,9 +119,19 @@ int Player::getSeat() const
     return seat;
 }
 
+int Player::getRealSeat() const
+{
+    return rseat;
+}
+
 void Player::setSeat(int seat)
 {
     this->seat = seat;
+}
+
+void Player::setRealSeat(int seat)
+{
+    rseat = seat;
 }
 
 bool Player::isAdjacentTo(const Player *another) const
@@ -368,6 +378,10 @@ Player::Role Player::getRoleEnum() const
         role_map.insert("loyalist", Loyalist);
         role_map.insert("rebel", Rebel);
         role_map.insert("renegade", Renegade);
+        role_map.insert("dragon_shu", DragonShu);
+        role_map.insert("dragon_qun", DragonQun);
+        role_map.insert("dragon_wei", DragonWei);
+        role_map.insert("dragon_wu", DragonWu);
     }
 
     return role_map.value(role);
@@ -1468,3 +1482,13 @@ int Player::getDeputySkinId() const
 {
     return deputySkinId;
 }
+
+bool Player::isYourFriend(const Player *fri) const
+{
+    QString role = isLord() ? "loyalist" : getRole();
+    QString f_role = fri->isLord() ? "loyalist" : fri->getRole();
+    if (f_role == role && f_role != "renegade" && getRole() != "renegade")
+         return true;
+    return false;
+}
+

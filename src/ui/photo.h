@@ -44,6 +44,8 @@ public:
     virtual QRectF boundingRect() const;
     QGraphicsItem *getMouseClickReceiver();
 
+    void showSeat();
+
 public slots:
     void updatePhase();
     void hideEmotion();
@@ -107,6 +109,7 @@ protected:
     Sprite *emotion_item;
     QGraphicsPixmapItem *_m_focusFrame;
     QGraphicsPixmapItem *_m_onlineStatusItem;
+    QGraphicsPixmapItem *_m_seatItem;
     QGraphicsRectItem *_m_duanchangMask;
 
     QList<QString> skill_names;

@@ -257,7 +257,7 @@ bool SingleTargetTrick::targetRated(const QList<const Player *> &, const Player 
 }
 
 DelayedTrick::DelayedTrick(Suit suit, int number, bool movable)
-    : TrickCard(suit, number), movable(movable)
+    : TrickCard(suit, number), movable(movable), turn_skills(QStringList() << "yearshenyi")
 {
     judge.negative = true;
 }
@@ -294,7 +294,15 @@ void DelayedTrick::onEffect(const CardEffectStruct &effect) const
 
     JudgeStruct judge_struct = judge;
     judge_struct.who = effect.to;
-    judge_struct.good = effect.to->hasSkill("bossshenyi") ? !judge.good : judge.good;
+    bool turn_good = false;
+    foreach (QString str, turn_skills)
+        if (effect.to->hasSkill(str))
+        {
+            room->sendCompulsoryTriggerLog(effect.to, str);
+            room->notifySkillInvoked(effect.to, str);
+            turn_good = true;
+        }
+    judge_struct.good = turn_good ? !judge.good : judge.good;
     room->judge(judge_struct);
 
     if (judge_struct.isBad()) {
@@ -497,6 +505,8 @@ public:
     {
         if (card->getTypeId() != Card::TypeSkill && from && from->hasFlag("DisabledOtherTargets") && to != from)
             return true;
+        if (card->isKindOf("YanxiaoCard"))
+            return false;
         if (card->isKindOf("DelayedTrick") && (to->containsTrick(card->objectName()) || to->getMark("JudgeSealed") > 0))
             return true;
         return false;
@@ -523,6 +533,15 @@ public:
             QVariantList move_datas = data.toList();
             foreach(QVariant move_data, move_datas) {
                 CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
+                //record of shanjia
+                if (move.from == player && move.from_places.contains(Player::PlaceEquip)) {
+                    for (int i = 0; i < move.card_ids.size(); i++) {
+                        if (move.from_places[i] == Player::PlaceEquip)
+                            room->addPlayerMark(player, "GlobalLostEquipcard");
+                    }
+                }
+
+
                 //record of get cards
                 if (move.to == player && move.to_place == Player::PlaceHand) {
                     QStringList card_list;
@@ -660,7 +679,7 @@ class GlobalClear : public TriggerSkill
 public:
     GlobalClear() : TriggerSkill("#global-clear")
     {
-        events << EventPhaseStart;
+        events << EventPhaseStart << EventPhaseChanging;
         global = true;
     }
 
@@ -672,8 +691,8 @@ public:
     virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         if (triggerEvent == EventPhaseStart) {
+            room->removeTag("ZuodingCannot");
             if (player->getPhase() == Player::NotActive) {
-                room->removeTag("ZuodingCannot");
                 foreach (ServerPlayer *p, room->getAlivePlayers()) {
                     room->setPlayerMark(p, "GlobalRuleDiscardCount", 0);
                     room->setPlayerMark(p, "GlobalDiscardCount", 0);
@@ -683,6 +702,7 @@ public:
                     room->setPlayerMark(p, "Global_MaxcardsIncrease", 0);
                     room->setPlayerMark(p, "Global_MaxcardsDecrease", 0);
                     room->setPlayerMark(p, "AnalepticUsedTimes", 0);
+                    room->setPlayerMark(p, "drank", 0);
                     p->tag.remove("RoundUsedCards");
                     p->tag.remove("RoundRespondedCards");
                     p->tag.remove("PhaseUsedCards");

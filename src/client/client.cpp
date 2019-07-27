@@ -18,7 +18,7 @@ Client *ClientInstance = NULL;
 Client::Client(QObject *parent, const QString &filename)
     : QObject(parent), m_isDiscardActionRefusable(true), m_lightUpSkillButton(false), m_bossLevel(0),
     status(NotActive), alive_count(1), swap_pile(0),
-    _m_roomState(true), choose_min_num(0), choose_max_num(0),
+    _m_roomState(true), choose_min_num(0), choose_max_num(0), _m_race(false),
     player_count(1) // Self is not included!! Be care!!!
 {
     ClientInstance = this;
@@ -50,6 +50,8 @@ Client::Client(QObject *parent, const QString &filename)
     m_callbacks[S_COMMAND_ATTACH_SKILL] = &Client::attachSkill;
     m_callbacks[S_COMMAND_MOVE_FOCUS] = &Client::moveFocus;
     m_callbacks[S_COMMAND_SET_EMOTION] = &Client::setEmotion;
+    m_callbacks[S_COMMAND_SET_FULL_EMOTION] = &Client::setFullEmotion;
+    m_callbacks[S_COMMAND_PLAY_ROOM_AUDIO] = &Client::playRoomAudio;
     m_callbacks[S_COMMAND_INVOKE_SKILL] = &Client::skillInvoked;
     m_callbacks[S_COMMAND_SHOW_ALL_CARDS] = &Client::showAllCards;
     m_callbacks[S_COMMAND_SKILL_GONGXIN] = &Client::askForGongxin;
@@ -694,6 +696,7 @@ void Client::arrangeSeats(const QVariant &seats_arr)
         Q_ASSERT(player != NULL);
 
         player->setSeat(i + 1);
+        player->setRealSeat(i + 1);
         players << player;
     }
 
@@ -1429,11 +1432,6 @@ void Client::killPlayer(const QVariant &player_name)
 
     alive_count--;
     ClientPlayer *player = getPlayer(name);
-    if (player == Self) {
-        foreach (const Skill *skill, Self->getVisibleSkills())
-            emit skill_detached(skill->objectName());
-    }
-    player->detachAllSkills();
 
     if (!Self->hasFlag("marshalling")) {
         QString general_name = player->getGeneralName();
@@ -2223,6 +2221,31 @@ void Client::setEmotion(const QVariant &set_str)
     QString emotion = set[1].toString();
 
     emit emotion_set(target_name, emotion);
+}
+
+void Client::setFullEmotion(const QVariant &set_str)
+{
+    JsonArray set = set_str.value<JsonArray>();
+    if (set.size() != 3) return;
+    if (!JsonUtils::isStringArray(set, 0, 2)) return;
+
+    QString emotion = set[0].toString(),
+            dx = set[1].toString(),
+            dy = set[2].toString();
+
+    emit full_emotion_set(emotion, dx.toInt(), dy.toInt());
+}
+
+void Client::playRoomAudio(const QVariant &set_str)
+{
+    JsonArray set = set_str.value<JsonArray>();
+    if (set.size() != 2) return;
+    if (!JsonUtils::isStringArray(set, 0, 1)) return;
+
+    QString path = set[0].toString(),
+            superpose = set[1].toString();
+
+    emit room_audio_play(path, superpose.toInt());
 }
 
 void Client::skillInvoked(const QVariant &arg)

@@ -24,11 +24,12 @@ GuhuoBox::GuhuoBox(const QString &skillname, const QString &flag)
     this->skill_name = skillname;
     this->flags = flag;
     title = QString("%1 %2").arg(Sanguosha->translate(skill_name)).arg(tr("Please choose:"));;
+    QList<int> modecard = Sanguosha->getRandomCards();
     //collect Cards' objectNames
     if (flags.contains("b")) {
         QList<const BasicCard*> basics = Sanguosha->findChildren<const BasicCard*>();
         foreach (const BasicCard *card, basics) {
-            if (!card_list["BasicCard"].contains(card->objectName()) && !ServerInfo.Extensions.contains("!" + card->getPackage())
+            if (!card_list["BasicCard"].contains(card->objectName()) && modecard.contains(card->getId())
                 && !(flags.contains("s") && card_list["BasicCard"].contains("slash") && card->objectName().contains("slash")))
                 card_list["BasicCard"].append(card->objectName());
         }
@@ -36,7 +37,7 @@ GuhuoBox::GuhuoBox(const QString &skillname, const QString &flag)
     if (flags.contains("t")) {
         QList<const TrickCard*> tricks = Sanguosha->findChildren<const TrickCard*>();
         foreach (const TrickCard *card, tricks) {
-            if (!ServerInfo.Extensions.contains("!" + card->getPackage()) && card->isNDTrick()) {
+            if (modecard.contains(card->getId()) && card->isNDTrick()) {
                 if (card_list["SingleTargetTrick"].contains(card->objectName()) || card_list["MultiTargetTrick"].contains(card->objectName()))
                     continue;
                 if (card->inherits("SingleTargetTrick") && !card_list["SingleTargetTrick"].contains(card->objectName()))
@@ -51,7 +52,7 @@ GuhuoBox::GuhuoBox(const QString &skillname, const QString &flag)
         QList<const DelayedTrick*> delays = Sanguosha->findChildren<const DelayedTrick*>();
         foreach (const DelayedTrick *card, delays) {
             if (!card_list["DelayedTrick"].contains(card->objectName())
-                && !ServerInfo.Extensions.contains("!" + card->getPackage()))
+                && modecard.contains(card->getId()))
                 card_list["DelayedTrick"].append(card->objectName());
         }
     }

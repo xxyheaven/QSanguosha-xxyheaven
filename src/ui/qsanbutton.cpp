@@ -525,13 +525,18 @@ void QSanInvokeSkillDock::update()
             }
         }
         int m1 = 0;
-        int rowTop1 = G_DASHBOARD_LAYOUT.m_confirmButtonArea.top() - 2.6*G_DASHBOARD_LAYOUT.m_confirmButtonArea.height();
-        int rowLeft1 = G_DASHBOARD_LAYOUT.m_confirmButtonArea.left() - 2.4*G_DASHBOARD_LAYOUT.m_confirmButtonArea.width();
-        int btnWidth1 = _m_width / 2;
+        int btnHeight = G_DASHBOARD_LAYOUT.m_confirmButtonArea.height();
+        int rowTop1 = G_DASHBOARD_LAYOUT.m_confirmButtonArea.top() - G_DASHBOARD_LAYOUT.m_normalHeight + btnHeight;
+        int rowLeft1;
+        if (!Config.value("UseOldButtons", false).toBool())
+            rowLeft1 = G_DASHBOARD_LAYOUT.m_handCardArea.left();
+        else
+            rowLeft1 = -G_DASHBOARD_LAYOUT.m_confirmButtonArea.width();
+        rowLeft1 -= 73;
         for (int i = 0; i < lordskillNum; i++) {
             QSanInvokeSkillButton *button = lordskill_buttons[m1++];
             button->setButtonWidth((QSanInvokeSkillButton::SkillButtonWidth)(1));
-            button->setPos(rowLeft1 - btnWidth1 * i, rowTop1);
+            button->setPos(rowLeft1, rowTop1 + i * btnHeight * 1.08);
         }
         delete[] btnNum;
     }

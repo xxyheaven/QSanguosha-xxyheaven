@@ -160,7 +160,8 @@ void ServerPlayer::throwAllMarks(bool visible_only)
 {
     // throw all marks
     foreach (QString mark_name, marks.keys()) {
-        if (mark_name == "@bossExp" || (visible_only && !mark_name.startsWith("@")))
+        if (mark_name == "@bossExp" || mark_name == "@boattreasure" ||
+            mark_name == "#ganlu" || (visible_only && !mark_name.startsWith("@")) || (mark_name == "@waked" && visible_only))
             continue;
 
         int n = marks.value(mark_name, 0);
@@ -194,7 +195,15 @@ void ServerPlayer::bury()
     clearFlags();
     clearHistory();
     throwAllCards();
+
+    QStringList wakedskills;
+    foreach (const Skill *skill, getSkillList())
+        if (skill->getFrequency() == Skill::Wake && getMark(skill->objectName()))
+            wakedskills << skill->objectName();
     throwAllMarks();
+    foreach (QString skillN, wakedskills)
+        room->addPlayerMark(this, skillN, 1);
+
     clearPrivatePiles();
 
     room->clearPlayerCardLimitation(this, false);
@@ -602,6 +611,15 @@ PindianStruct *ServerPlayer::pindianStart(const QList<ServerPlayer *> &targets, 
     log.to = targets;
     room->sendLog(log);
 
+    RoomThread *room_thread = room->getThread();
+
+    QVariant data_ask = 1;
+    if (card1 == NULL)
+        room_thread->trigger(AskforPindianCard, room, this, data_ask);
+    data_ask = 2;
+    foreach (ServerPlayer *target, targets)
+        room_thread->trigger(AskforPindianCard, room, target, data_ask);
+
     room->tryPause();
 
     QList<const Card *> cards = room->askForPindianRace(this, targets, reason, card1);
@@ -777,9 +795,31 @@ PindianStruct *ServerPlayer::pindianStruct(ServerPlayer *target, const QString &
     return pd2;
 }
 
-void ServerPlayer::turnOver()
+void ServerPlayer::turnOver(const QString &skill_name)
 {
-    if (hasSkill("bossxiongshou") || hasSkill("bossshenyi")) return;
+    QStringList unturnedSkills;
+    unturnedSkills << "bossxiongshou" << "bossshenyi" << "yearwuma" << "yearwuma19";
+
+    bool unturned = false;
+    foreach (QString sk, unturnedSkills)
+        if (hasSkill(sk))
+        {
+            broadcastSkillInvoke(sk);
+            room->notifySkillInvoked(this, sk);
+            LogMessage turnlog;
+            turnlog.type = "#turnlog";
+            turnlog.from = this;
+            turnlog.arg = sk;
+            room->sendLog(turnlog);
+        }
+
+    if (unturned) return;
+
+    TurnStruct turnst;
+    turnst.who = this;
+    turnst.name = skill_name;
+    QVariant data = QVariant::fromValue(turnst);
+
     setFaceUp(!faceUp());
     room->broadcastProperty(this, "faceup");
 
@@ -789,7 +829,7 @@ void ServerPlayer::turnOver()
     log.arg = faceUp() ? "face_up" : "face_down";
     room->sendLog(log);
 
-    room->getThread()->trigger(TurnedOver, room, this);
+    room->getThread()->trigger(TurnedOver, room, this, data);
 }
 
 bool ServerPlayer::changePhase(Player::Phase from, Player::Phase to)
@@ -1405,6 +1445,29 @@ void ServerPlayer::gainAnExtraTurn()
     room->setTag("ExtraTurnList", QVariant::fromValue(extraTurnList));
 }
 
+void ServerPlayer::gainAnImmediateTurn(bool broken)
+{
+    if (broken)
+    {
+        gainAnExtraTurn();
+        throw TurnBroken;
+    }
+    else
+    {
+        room->setTag("ExtraTurn", true);
+        ServerPlayer *ori = room->getCurrent(), *current = room->getNormalCurrent();
+        room->setCurrent(this);
+        room->setNormalCurrent(current);
+
+        RoomThread *roomthread = room->getThread();
+        roomthread->trigger(TurnStart, room, this);
+
+        room->removeTag("ExtraTurn");
+        room->setCurrent(ori);
+        room->setNormalCurrent(current);
+    }
+}
+
 void ServerPlayer::copyFrom(ServerPlayer *sp)
 {
     ServerPlayer *b = this;
@@ -1484,9 +1547,10 @@ QList<ServerPlayer *> ServerPlayer::getUseExtraTargets(CardUseStruct card_use, b
 
     if (use.card->isKindOf("Slash")) {
         if (use.card->hasFlag("slashDisableExtraTarget")) return targets;
-        if (use.card->hasFlag("slashNoDistanceLimit") || !distance_limited)
-            room->setPlayerFlag(this, "slashNoDistanceLimit");
     }
+
+    if (use.card->hasFlag("slashNoDistanceLimit") || !distance_limited)
+        room->setPlayerFlag(this, "Global_NoDistanceChecking");
 
     foreach (ServerPlayer *p, room->getAlivePlayers()) {
         if (use.to.contains(p) || room->isProhibited(this, p, use.card)) continue;
@@ -1494,7 +1558,7 @@ QList<ServerPlayer *> ServerPlayer::getUseExtraTargets(CardUseStruct card_use, b
             targets.append(p);
     }
 
-    room->setPlayerFlag(this, "-slashNoDistanceLimit");
+    room->setPlayerFlag(this, "-Global_NoDistanceChecking");
 
     return targets;
 }
@@ -1510,7 +1574,7 @@ QList<ServerPlayer *> ServerPlayer::getCardDefautTargets(const Card *card, bool 
     }
 
     if (!distance_limited)
-        room->setPlayerFlag(this, "slashNoDistanceLimit");
+        room->setPlayerFlag(this, "Global_NoDistanceChecking");
 
     foreach (ServerPlayer *p, room->getAlivePlayers()) {
         if (!room->isProhibited(this, p, card) && card->targetFilter(QList<const Player *>(), p, this)) {
@@ -1519,7 +1583,31 @@ QList<ServerPlayer *> ServerPlayer::getCardDefautTargets(const Card *card, bool 
         }
     }
 
-    room->setPlayerFlag(this, "-slashNoDistanceLimit");
+    room->setPlayerFlag(this, "-Global_NoDistanceChecking");
 
     return targets;
+}
+
+void ServerPlayer::changeLesbianSkill(const QString &skill, bool hidden)
+{
+    ServerPlayer *player = this;
+    if (player && player->hasSkill(skill))
+    {
+        if (skill == "noslijian")
+        {
+            room->detachSkillFromPlayer(player, "noslijian");
+            room->acquireSkill(player, "noslesbianlijian");
+        }
+        else
+            if (hidden)
+            {
+                QString realskill = skill.mid(2);
+                room->acquireSkill(player, QString("#lesbian")+realskill);
+            }
+            else
+            {
+                room->detachSkillFromPlayer(player, skill);
+                room->acquireSkill(player, QString("lesbian")+skill);
+            }
+    }
 }

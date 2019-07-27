@@ -232,9 +232,13 @@ public:
         int m_leftWidth, m_rightWidth;
         int m_floatingAreaHeight;
         QSize m_buttonSetSize;
+        QSize m_buttonSetSizeOld;
         QRect m_confirmButtonArea;
         QRect m_cancelButtonArea;
         QRect m_discardButtonArea;
+        QRect m_confirmButtonAreaOld;
+        QRect m_cancelButtonAreaOld;
+        QRect m_discardButtonAreaOld;
         QRect m_trustButtonArea;
         QSize m_skillButtonsSize[3];
         QRect m_skillTextArea[3];
@@ -374,7 +378,10 @@ public:
 
     // button
     static const char *S_SKIN_KEY_BUTTON;
-    static const char *S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG;
+    static const char *S_SKIN_KEY_DASHBOARD_BUTTON_BUTTOM;
+    static const char *S_SKIN_KEY_DASHBOARD_BUTTON_BUTTOM_OLD;
+    static const char *S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG[7];
+    static const char *S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG_OLD[7];
     static const char *S_SKIN_KEY_BUTTON_DASHBOARD_CONFIRM;
     static const char *S_SKIN_KEY_BUTTON_DASHBOARD_CANCEL;
     static const char *S_SKIN_KEY_BUTTON_DASHBOARD_DISCARD;
@@ -383,10 +390,11 @@ public:
     static const char *S_SKIN_KEY_BUTTON_SKILL;
 
     // player container
-    static const char *S_SKIN_KEY_MAINFRAME;
-    static const char *S_SKIN_KEY_LEFTFRAME;
-    static const char *S_SKIN_KEY_RIGHTFRAME;
-    static const char *S_SKIN_KEY_MIDDLEFRAME;
+    static const char *S_SKIN_KEY_MAINFRAME[7];
+    static const char *S_SKIN_KEY_LEFTFRAME[7];
+    static const char *S_SKIN_KEY_RIGHTFRAME[7];
+    static const char *S_SKIN_KEY_MIDDLEFRAME[7];
+    static const char *S_SKIN_KEY_FLOWERFRAME;
     static const char *S_SKIN_KEY_HANDCARDNUM;
     static const char *S_SKIN_KEY_FACETURNEDMASK;
     static const char *S_SKIN_KEY_BLANK_GENERAL;
@@ -401,7 +409,7 @@ public:
     static const char *S_SKIN_KEY_DASHBOARD_KINGDOM_COLOR_MASK;
     static const char *S_SKIN_KEY_VOTES_NUMBER;
     static const char *S_SKIN_KEY_SEAT_NUMBER;
-    static const char *S_SKIN_KEY_HAND_CARD_BACK;
+    static const char *S_SKIN_KEY_HAND_CARD_BACK[7];
     static const char *S_SKIN_KEY_HAND_CARD_SUIT;
     static const char *S_SKIN_KEY_JUDGE_CARD_ICON;
     static const char *S_SKIN_KEY_HAND_CARD_MAIN_PHOTO;

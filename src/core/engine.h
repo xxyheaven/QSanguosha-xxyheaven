@@ -101,7 +101,9 @@ public:
 
     QStringList getLords(bool contain_banned = false) const;
     QStringList getRandomLords() const;
+    QStringList getRandomFemaleLords(bool luxun = true) const;
     QStringList getRandomGenerals(int count = 0, const QSet<QString> &ban_set = QSet<QString>(), const QString &kingdom = QString()) const;
+    QStringList getRandomFemaleGenerals(int count = 0, const QSet<QString> &ban_set = QSet<QString>(), const QString &kingdom = QString(), bool luxun = true) const;
     QList<int> getRandomCards() const;
     QString getRandomGeneralName() const;
     QStringList getLimitedGeneralNames(const QString &kingdom = QString()) const;

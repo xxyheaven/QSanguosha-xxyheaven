@@ -6,6 +6,7 @@
 #include "client.h"
 #include "standard.h"
 #include "scenario.h"
+#include "guhuodialog.h"
 
 #include <QFile>
 
@@ -166,12 +167,17 @@ QString Skill::getOwner() const
     return owner;
 }
 
+QStringList Skill::getInheritSkill() const
+{
+    return inherit_skills;
+}
+
 QStringList Skill::getSources() const
 {
     return sources;
 }
 
-QDialog *Skill::getDialog() const
+GuhuoDialog *Skill::getDialog() const
 {
     return NULL;
 }
@@ -210,7 +216,7 @@ bool Skill::buttonEnabled(const QString &button_name, const QList<const Card *> 
 }
 
 ViewAsSkill::ViewAsSkill(const QString &name)
-    : Skill(name), response_pattern(QString()), response_or_use(false), expand_pile(QString()), guhuo_type(QString())
+    : Skill(name), response_pattern(QString()), response_or_use(false), expand_pile(QString()), guhuo_type(QString()), guhuo_dialog_type(QString())
 {
 }
 

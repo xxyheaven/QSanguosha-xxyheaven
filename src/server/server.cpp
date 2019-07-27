@@ -35,6 +35,8 @@
 
 using namespace QSanProtocol;
 
+const int lrSp = 14;
+
 static QLayout *HLay(QWidget *left, QWidget *right)
 {
     QHBoxLayout *layout = new QHBoxLayout;
@@ -391,6 +393,10 @@ QWidget *ServerDialog::createMiscTab()
     nullification_spinbox->setValue(Config.NullificationCountDown);
     nullification_spinbox->setSuffix(tr(" seconds"));
 
+    general_level_spinbox = new QSpinBox;
+    general_level_spinbox->setRange(1, 6);
+    general_level_spinbox->setValue(Config.GeneralLevel);
+
     minimize_dialog_checkbox = new QCheckBox(tr("Minimize the dialog when server runs"));
     minimize_dialog_checkbox->setChecked(Config.EnableMinimizeDialog);
 
@@ -439,6 +445,7 @@ QWidget *ServerDialog::createMiscTab()
     QVBoxLayout *tablayout = new QVBoxLayout;
     tablayout->addLayout(HLay(new QLabel(tr("Game start count down")), game_start_spinbox));
     tablayout->addLayout(HLay(new QLabel(tr("Nullification count down")), nullification_spinbox));
+    tablayout->addLayout(HLay(new QLabel(tr("General level")), general_level_spinbox));
     tablayout->addWidget(minimize_dialog_checkbox);
     tablayout->addWidget(surrender_at_death_checkbox);
     tablayout->addWidget(luck_card_checkbox);
@@ -491,7 +498,7 @@ BanlistDialog::BanlistDialog(QWidget *parent, bool view)
     setMinimumWidth(455);
 
     if (ban_list.isEmpty())
-        ban_list << "AI" << "Roles" << "BestLoyalist" << "1v1" << "BossMode" << "Basara" << "Hegemony" << "Pairs" << "Cards";
+        ban_list << "AI" << "Roles" << "BestLoyalist" << "DragonBoat" << "GodsReturn" << "AttackDong" << "YearBoss" << "1v1" << "BossMode" << "Basara" << "Hegemony" << "Pairs" << "Cards";
     QVBoxLayout *layout = new QVBoxLayout;
 
     QTabWidget *tab = new QTabWidget;
@@ -803,6 +810,99 @@ QGroupBox *ServerDialog::createXModeBox()
     return box;
 }
 
+QGroupBox *ServerDialog::createBestLoyalistBox()
+{
+    QGroupBox *box = new QGroupBox(tr("Best loyalist options"));
+    box->setEnabled(Config.GameMode == "08_zdyj");
+    box->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    QVBoxLayout *vlayout = new QVBoxLayout;
+
+    QComboBox *officialComboBox = new QComboBox;
+    officialComboBox->addItem("2015", "2015");
+    officialComboBox->addItem("2017", "2017");
+
+    official_zdyj_ComboBox = officialComboBox;
+
+    QString rule = Config.value("zdyj/Rule", "2017").toString();
+    if (rule == "2017")
+        officialComboBox->setCurrentIndex(1);
+
+    vlayout->addLayout(HLay(new QLabel(tr("Rule option")), official_zdyj_ComboBox));
+
+    box->setLayout(vlayout);
+
+    return box;
+
+}
+
+QGroupBox *ServerDialog::createAttackDongBox()
+{
+    QGroupBox *box = new QGroupBox(tr("Attack Dong options"));
+    box->setEnabled(Config.GameMode == "05_zdyj");
+    box->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    QVBoxLayout *vlayout = new QVBoxLayout;
+
+    QComboBox *officialComboBox = new QComboBox;
+    officialComboBox->addItem(tr("NormalMode"), "NormalMode");
+    officialComboBox->addItem(tr("BossMode"), "BossMode");
+
+    mode_choose_zhfd_ComboBox = officialComboBox;
+
+    QString rule = Config.value("zhfd/Mode", "NormalMode").toString();
+    if (rule == "BossMode")
+        officialComboBox->setCurrentIndex(1);
+
+    vlayout->addLayout(HLay(new QLabel(tr("Mode option")), mode_choose_zhfd_ComboBox));
+
+    box->setLayout(vlayout);
+
+    return box;
+
+}
+
+QGroupBox *ServerDialog::createYearBossBox()
+{
+    QGroupBox *box = new QGroupBox(tr("Year Boss options"));
+    box->setEnabled(Config.GameMode == "04_year");
+    box->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    QComboBox *officialComboBox = new QComboBox;
+    officialComboBox->addItem("2018", "2018");
+    officialComboBox->addItem(tr("2019General"), "2019G");
+    officialComboBox->addItem(tr("2019YearBoss"), "2019Y");
+
+    mode_choose_year_ComboBox = officialComboBox;
+    QString rule = Config.value("year/Mode", "2018").toString();
+    if (rule == "2019G")
+        officialComboBox->setCurrentIndex(1);
+    else if (rule == "2019Y")
+        officialComboBox->setCurrentIndex(2);
+
+    year_using_year_skill_checkbox = new QCheckBox(tr("UseYearSkill"));
+    year_using_year_skill_checkbox->setChecked(Config.value("year/YearSkillStart", false).toBool());
+
+    year_using_uniform_kingdom_checkbox = new QCheckBox(tr("UniformKingdom"));
+    year_using_uniform_kingdom_checkbox->setChecked(Config.value("year/UniformKingdom", true).toBool());
+
+    year_yearmode_round_spinbox = new QSpinBox;
+    year_yearmode_round_spinbox->setRange(1, 3);
+    year_yearmode_round_spinbox->setValue(Config.value("year/RoundNum", 1).toInt());
+
+    QVBoxLayout *vlayout = new QVBoxLayout;
+    vlayout->addLayout(HLay(new QLabel(tr("Rule option")), mode_choose_year_ComboBox));
+    vlayout->addWidget(year_using_year_skill_checkbox);
+    vlayout->addWidget(year_using_uniform_kingdom_checkbox);
+    vlayout->addLayout(HLay(new QLabel(tr("Round option")), year_yearmode_round_spinbox));
+
+
+    box->setLayout(vlayout);
+
+    return box;
+
+}
+
 QGroupBox *ServerDialog::createGameModeBox()
 {
     QGroupBox *mode_box = new QGroupBox(tr("Game mode"));
@@ -840,6 +940,21 @@ QGroupBox *ServerDialog::createGameModeBox()
             boss_mode_button->setChecked(false);
             connect(boss_mode_button, SIGNAL(clicked()), this, SLOT(doBossModeCustomAssign()));
             item_list << HLay(button, boss_mode_button);
+        } else if (itor.key() == "08_zdyj") {
+            QGroupBox *box = createBestLoyalistBox();
+            connect(button, SIGNAL(toggled(bool)), box, SLOT(setEnabled(bool)));
+
+            item_list << button << box;
+        } else if (itor.key() == "05_zhfd") {
+            QGroupBox *box = createAttackDongBox();
+            connect(button, SIGNAL(toggled(bool)), box, SLOT(setEnabled(bool)));
+
+            item_list << button << box;
+        } else if (itor.key() == "04_year") {
+            QGroupBox *box = createYearBossBox();
+            connect(button, SIGNAL(toggled(bool)), box, SLOT(setEnabled(bool)));
+
+            item_list << button << box;
         } else {
             item_list << button;
         }
@@ -919,7 +1034,7 @@ QGroupBox *ServerDialog::createGameModeBox()
     for (int i = 0; i < item_list.length(); i++) {
         QObject *item = item_list.at(i);
 
-        QVBoxLayout *side = i <= 9 ? left : right; // WARNING: Magic Number
+        QVBoxLayout *side = i <= lrSp ? left : right; // WARNING: Magic Number
 
         if (item->isWidgetType()) {
             QWidget *widget = qobject_cast<QWidget *>(item);
@@ -1248,6 +1363,7 @@ int ServerDialog::config()
     Config.Address = address_edit->text();
     Config.CountDownSeconds = game_start_spinbox->value();
     Config.NullificationCountDown = nullification_spinbox->value();
+    Config.GeneralLevel = general_level_spinbox->value();
     Config.EnableMinimizeDialog = minimize_dialog_checkbox->isChecked();
     Config.EnableAI = ai_enable_checkbox->isChecked();
     Config.OriginAIDelay = ai_delay_spinbox->value();
@@ -1303,6 +1419,7 @@ int ServerDialog::config()
     Config.setValue("PreventAwakenBelow3", Config.PreventAwakenBelow3);
     Config.setValue("CountDownSeconds", game_start_spinbox->value());
     Config.setValue("NullificationCountDown", nullification_spinbox->value());
+    Config.setValue("GeneralLevel", general_level_spinbox->value());
     Config.setValue("EnableMinimizeDialog", Config.EnableMinimizeDialog);
     Config.setValue("EnableAI", Config.EnableAI);
     Config.setValue("AIChat", ai_chat_checkbox->isChecked());
@@ -1330,6 +1447,21 @@ int ServerDialog::config()
 
     Config.beginGroup("XMode");
     Config.setValue("RoleChooseX", role_choose_xmode_ComboBox->itemData(role_choose_xmode_ComboBox->currentIndex()).toString());
+    Config.endGroup();
+
+    Config.beginGroup("zdyj");
+    Config.setValue("Rule", official_zdyj_ComboBox->itemData(official_zdyj_ComboBox->currentIndex()).toString());
+    Config.endGroup();
+
+    Config.beginGroup("zhfd");
+    Config.setValue("Mode", mode_choose_zhfd_ComboBox->itemData(mode_choose_zhfd_ComboBox->currentIndex()).toString());
+    Config.endGroup();
+
+    Config.beginGroup("year");
+    Config.setValue("Mode", mode_choose_year_ComboBox->itemData(mode_choose_year_ComboBox->currentIndex()).toString());
+    Config.setValue("YearSkillStart", year_using_year_skill_checkbox->isChecked());
+    Config.setValue("UniformKingdom", year_using_uniform_kingdom_checkbox->isChecked());
+    Config.setValue("RoundNum", year_yearmode_round_spinbox->value());
     Config.endGroup();
 
     QSet<QString> ban_packages;

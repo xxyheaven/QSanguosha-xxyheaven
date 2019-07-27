@@ -1261,9 +1261,11 @@ public:
                 CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
                 if (move.from == player && (move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD) {
                     int i = 0;
-                    QStringList trigger_list;
-                    foreach (int card_id, move.card_ids) {
-                        if (Sanguosha->getCard(card_id)->isRed() && (move.from_places[i] == Player::PlaceHand || move.from_places[i] == Player::PlaceEquip)) {
+
+                    foreach (QString card_str, move.cards) {
+
+                        const Card *card = Card::Parse(card_str);
+                        if (card && card->isRed() && (move.from_places[i] == Player::PlaceHand || move.from_places[i] == Player::PlaceEquip)) {
                             trigger_list << objectName();
                         }
                         i++;
@@ -4884,16 +4886,16 @@ class Qizhou : public TriggerSkill
 public:
     Qizhou() : TriggerSkill("qizhou")
     {
-        events << CardsMoveOneTime << EventAcquireSkill << EventLoseSkill;
+        events << PreCardsMoveOneTime << EventAcquireSkill << EventLoseSkill;
         frequency = Compulsory;
     }
 
-    bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *) const
     {
-        return target != NULL;
+        return false;
     }
 
-    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == EventLoseSkill) {
             if (data.toString() == objectName()) {
@@ -4904,25 +4906,21 @@ public:
                 room->handleAcquireDetachSkills(player, detachList);
                 player->tag["QizhouSkills"] = QVariant();
             }
-            return false;
+            return;
         } else if (triggerEvent == EventAcquireSkill) {
-            if (data.toString() != objectName()) return false;
+            if (data.toString() != objectName()) return;
         }
 
-        if (!player->isAlive() || !player->hasSkill(this, true)) return false;
+        if (!player->isAlive() || !player->hasSkill(this, true)) return;
 
         acquired_skills.clear();
         detached_skills.clear();
         QizhouChange(room, player, 1, "mashu");
-        QizhouChange(room, player, 2, "nosyingzi");
+        QizhouChange(room, player, 2, "yingzi");
         QizhouChange(room, player, 3, "duanbing");
         QizhouChange(room, player, 4, "fenwei");
-        if (!acquired_skills.isEmpty() || !detached_skills.isEmpty()) {
-            room->sendCompulsoryTriggerLog(player, objectName());
-            player->broadcastSkillInvoke(objectName());
+        if (!acquired_skills.isEmpty() || !detached_skills.isEmpty())
             room->handleAcquireDetachSkills(player, acquired_skills + detached_skills);
-        }
-        return false;
     }
 
 private:
@@ -6525,7 +6523,7 @@ Spark5Package::Spark5Package()
     General *heqi = new General(this, "heqi", "wu");
     heqi->addSkill(new Qizhou);
     heqi->addRelateSkill("mashu");
-    heqi->addRelateSkill("nosyingzi");
+    heqi->addRelateSkill("yingzi");
     heqi->addRelateSkill("duanbing");
     heqi->addRelateSkill("fenwei");
     heqi->addSkill(new Shanxi);

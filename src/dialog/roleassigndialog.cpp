@@ -157,6 +157,10 @@ void RoleAssignDialog::updateRole(QListWidgetItem *current)
         mapping["loyalist"] = 1;
         mapping["renegade"] = 2;
         mapping["rebel"] = 3;
+        mapping["dragon_shu"] = 4;
+        mapping["dragon_qun"] = 5;
+        mapping["dragon_wei"] = 6;
+        mapping["dragon_wu"] = 7;
     }
 
     QString name = current->data(Qt::UserRole).toString();

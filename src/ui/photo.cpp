@@ -39,6 +39,7 @@ Photo::Photo() : PlayerCardContainer()
     _m_mainFrame = NULL;
     m_player = NULL;
     _m_focusFrame = NULL;
+    _m_seatItem = NULL;
     _m_onlineStatusItem = NULL;
     _m_layout = &G_PHOTO_LAYOUT;
     _m_frameType = S_FRAME_NO_FRAME;
@@ -108,7 +109,7 @@ void Photo::repaintAll()
 {
     resetTransform();
     setTransform(QTransform::fromTranslate(-G_PHOTO_LAYOUT.m_normalWidth / 2, -G_PHOTO_LAYOUT.m_normalHeight / 2), true);
-    _paintPixmap(_m_mainFrame, G_PHOTO_LAYOUT.m_mainFrameArea, QSanRoomSkin::S_SKIN_KEY_MAINFRAME);
+    _paintPixmap(_m_mainFrame, G_PHOTO_LAYOUT.m_mainFrameArea, QSanRoomSkin::S_SKIN_KEY_MAINFRAME[Config.GeneralLevel]);
     setFrame(_m_frameType);
     hideSkillName(); // @todo: currently we don't adjust skillName's position for simplicity,
     // consider repainting it instead of hiding it in the future.
@@ -348,5 +349,15 @@ void Photo::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
 QGraphicsItem *Photo::getMouseClickReceiver()
 {
     return this;
+}
+
+void Photo::showSeat()
+{
+    _paintPixmap(_m_seatItem, G_PHOTO_LAYOUT.m_seatIconRegion,
+        _getPixmap(QSanRoomSkin::S_SKIN_KEY_SEAT_NUMBER, QString::number(m_player->getRealSeat())),
+        _m_groupMain);
+    //save the seat number for later use
+    //_m_seatItem->setZValue(1.1);
+    _layUnder(_m_seatItem);
 }
 

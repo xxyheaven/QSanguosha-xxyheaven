@@ -51,6 +51,34 @@ public:
 
 
 
+class QianxiniCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE QianxiniCard();
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
+class TunanCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE TunanCard();
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
+class FuhaiCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE FuhaiCard();
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 
 
 class CompeteWorldCardPackage : public Package

@@ -828,7 +828,7 @@ public:
     {
         DeathStruct death = data.value<DeathStruct>();
         ServerPlayer *player = death.who;
-        if (!(isNormalGameMode(room->getMode()) || room->getMode() == "08_zdyj") || !lingju->hasSkill("jieyuan", true)) return false;
+        if (!(isNormalGameMode(room->getMode()) || room->getMode() == "08_zdyj" || room->getMode() == "08_hongyan") || !lingju->hasSkill("jieyuan", true)) return false;
         QString role = player->getRole();
         if (role == "loyalist" && lingju->getMark("jieyuan2_upgrade") == 0) {
             room->sendCompulsoryTriggerLog(lingju, objectName());
